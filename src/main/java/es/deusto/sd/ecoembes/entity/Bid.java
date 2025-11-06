@@ -3,7 +3,7 @@
  * adapted using GitHub Copilot. It has been thoroughly reviewed 
  * and validated to ensure correctness and that it is free of errors.
  */
-package es.deusto.sd.auctions.entity;
+package es.deusto.sd.ecoembes.entity;
 
 import java.util.Objects;
 
@@ -13,9 +13,10 @@ public class Bid {
 	private Article article;
 	private User user;
 
-	// Constructor without parameters	
-	public Bid() { }
-	
+	// Constructor without parameters
+	public Bid() {
+	}
+
 	// Constructor with parameters
 	public Bid(long date, float amount, Article article, User user) {
 		this.date = date;
@@ -23,7 +24,7 @@ public class Bid {
 		this.article = article;
 		this.user = user;
 	}
-	
+
 	// Getters and setters
 	public long getDate() {
 		return date;
@@ -57,7 +58,7 @@ public class Bid {
 		this.user = user;
 	}
 
-	// hashCode and equals	
+	// hashCode and equals
 	@Override
 	public int hashCode() {
 		return Objects.hash(article, date, user);
@@ -72,8 +73,8 @@ public class Bid {
 		if (getClass() != obj.getClass())
 			return false;
 		Bid other = (Bid) obj;
-		return Objects.equals(article, other.article) && 
-			   date == other.date && 
-			   Objects.equals(user, other.user);
+		return Objects.equals(article, other.article) &&
+				date == other.date &&
+				Objects.equals(user, other.user);
 	}
 }

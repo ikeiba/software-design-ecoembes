@@ -3,7 +3,7 @@
  * adapted using GitHub Copilot. It has been thoroughly reviewed 
  * and validated to ensure correctness and that it is free of errors.
  */
-package es.deusto.sd.auctions.service;
+package es.deusto.sd.ecoembes.service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,13 +11,13 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import es.deusto.sd.auctions.entity.Article;
-import es.deusto.sd.auctions.entity.Bid;
-import es.deusto.sd.auctions.entity.Category;
-import es.deusto.sd.auctions.entity.User;
+import es.deusto.sd.ecoembes.entity.Article;
+import es.deusto.sd.ecoembes.entity.Bid;
+import es.deusto.sd.ecoembes.entity.Category;
+import es.deusto.sd.ecoembes.entity.User;
 
 @Service
-public class AuctionsService {
+public class EcoembesService {
 
 	// Simulating category and article repositories
 	private static Map<String, Category> categoryRepository = new HashMap<>();
@@ -38,7 +38,7 @@ public class AuctionsService {
 
 		return category.getArticles();
 	}
-	
+
 	// Get article by id
 	public Article getArticleById(long articleId) {
 		return articleRepository.get(articleId);
@@ -56,19 +56,19 @@ public class AuctionsService {
 		if (amount <= article.getCurrentPrice()) {
 			throw new RuntimeException("Bid amount must be greater than the current price");
 		}
-		
+
 		// Create a new bid and associate it with the article
 		Bid bid = new Bid(System.currentTimeMillis(), amount, article, user);
 		article.getBids().add(bid);
 	}
-	
+
 	// Method to add a new category
 	public void addCategory(Category category) {
 		if (category != null) {
 			categoryRepository.putIfAbsent(category.getName(), category);
 		}
 	}
-	
+
 	// Method to add a new article
 	public void addArticle(Article article) {
 		if (article != null) {

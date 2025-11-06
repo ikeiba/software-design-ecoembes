@@ -3,7 +3,7 @@
  * adapted using GitHub Copilot. It has been thoroughly reviewed 
  * and validated to ensure correctness and that it is free of errors.
  */
-package es.deusto.sd.auctions.entity;
+package es.deusto.sd.ecoembes.entity;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,8 +24,8 @@ public class Article {
 	}
 
 	// Constructor with parameters
-	public Article(long id, String title, float initialPrice, 
-			       Date auctionEnd, Category category, User owner) {
+	public Article(long id, String title, float initialPrice,
+			Date auctionEnd, Category category, User owner) {
 		this.id = id;
 		this.title = title;
 		this.initialPrice = initialPrice;

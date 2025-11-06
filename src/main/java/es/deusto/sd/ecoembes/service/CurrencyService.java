@@ -1,4 +1,4 @@
-package es.deusto.sd.auctions.service;
+package es.deusto.sd.ecoembes.service;
 
 import java.util.Optional;
 
@@ -11,25 +11,27 @@ public class CurrencyService {
 		EUR(1f),
 		USD(1.104f),
 		GBP(0.840f);
-			
+
 		private float rate;
 
 		ExchangeRate(float rate) {
 			this.rate = rate;
 		}
 	}
-	
-    public Optional<Float> getExchangeRate(String currency) {
-    	Optional<Float> exchangeRate = ExchangeRate.valueOf(currency) != null ? Optional.of(ExchangeRate.valueOf(currency).rate) : Optional.empty();
 
-    	try {
+	public Optional<Float> getExchangeRate(String currency) {
+		Optional<Float> exchangeRate = ExchangeRate.valueOf(currency) != null
+				? Optional.of(ExchangeRate.valueOf(currency).rate)
+				: Optional.empty();
+
+		try {
 			if (exchangeRate.isPresent()) {
 				return exchangeRate;
 			} else {
 				return Optional.of(ExchangeRate.valueOf(currency).rate);
 			}
-    	} catch(Exception ex) {
-    		return Optional.empty();
-    	}
-    }
+		} catch (Exception ex) {
+			return Optional.empty();
+		}
+	}
 }

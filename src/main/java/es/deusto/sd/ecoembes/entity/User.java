@@ -3,7 +3,7 @@
  * adapted using GitHub Copilot. It has been thoroughly reviewed 
  * and validated to ensure correctness and that it is free of errors.
  */
-package es.deusto.sd.auctions.entity;
+package es.deusto.sd.ecoembes.entity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,23 +16,24 @@ public class User {
 	private String email;
 	private List<Bid> bids = new ArrayList<>();
 	private List<Article> articles = new ArrayList<>();
-	
+
 	// Constructor without parameters
-	public User() { }
-	
+	public User() {
+	}
+
 	// Constructor with parameters
 	public User(String nickname, String email, String password) {
-		this.nickname = nickname;		
+		this.nickname = nickname;
 		this.email = email;
 		this.password = password;
 	}
-	
+
 	// Check if a password is correct
 	public boolean checkPassword(String password) {
-        return this.password.equals(password);
+		return this.password.equals(password);
 	}
 
-	//  Getters and setters
+	// Getters and setters
 	public String getNickname() {
 		return nickname;
 	}
@@ -88,7 +89,7 @@ public class User {
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
-		return Objects.equals(email, other.email) && 
-			   Objects.equals(nickname, other.nickname);
+		return Objects.equals(email, other.email) &&
+				Objects.equals(nickname, other.nickname);
 	}
 }

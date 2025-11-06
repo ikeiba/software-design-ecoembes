@@ -3,7 +3,7 @@
  * adapted using GitHub Copilot. It has been thoroughly reviewed 
  * and validated to ensure correctness and that it is free of errors.
  */
-package es.deusto.sd.auctions.dto;
+package es.deusto.sd.ecoembes.dto;
 
 import java.util.Date;
 
@@ -17,13 +17,14 @@ public class ArticleDTO {
     private String categoryName;
     private String ownerName;
     private String currency;
-    
+
     // Constructor without parameters
-	public ArticleDTO() { }
-    
+    public ArticleDTO() {
+    }
+
     // Constructor with parameters
     public ArticleDTO(long id, String title, float initialPrice, float currentPrice, int bids,
-    				  Date auctionEnd, String categoryName, String ownerName, String currency) {
+            Date auctionEnd, String categoryName, String ownerName, String currency) {
         this.id = id;
         this.title = title;
         this.initialPrice = initialPrice;
@@ -60,22 +61,22 @@ public class ArticleDTO {
         this.initialPrice = initialPrice;
     }
 
-	public float getCurrentPrice() {
-		return currentPrice;
-	}
-    
-	public void setCurrentPrice(float currentPrice) {
-		this.currentPrice = currentPrice;
-	}
-	
-	public int getBids() {
-		return bids;
-	}
-	
-	public void setBids(int bids) {
-		this.bids = bids;
-	}
-    
+    public float getCurrentPrice() {
+        return currentPrice;
+    }
+
+    public void setCurrentPrice(float currentPrice) {
+        this.currentPrice = currentPrice;
+    }
+
+    public int getBids() {
+        return bids;
+    }
+
+    public void setBids(int bids) {
+        this.bids = bids;
+    }
+
     public Date getAuctionEnd() {
         return auctionEnd;
     }
@@ -99,12 +100,12 @@ public class ArticleDTO {
     public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
     }
-    
-	public String getCurrency() {
-		return currency;
-	}
-	
-	public void setCurrency(String currency) {
-		this.currency = currency;
-	}
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
 }

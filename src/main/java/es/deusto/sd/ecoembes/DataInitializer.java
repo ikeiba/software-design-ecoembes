@@ -3,7 +3,7 @@
  * adapted using GitHub Copilot. It has been thoroughly reviewed 
  * and validated to ensure correctness and that it is free of errors.
  */
-package es.deusto.sd.auctions;
+package es.deusto.sd.ecoembes;
 
 //nigger
 import java.util.Calendar;
@@ -15,11 +15,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import es.deusto.sd.auctions.entity.Article;
-import es.deusto.sd.auctions.entity.Category;
-import es.deusto.sd.auctions.entity.User;
-import es.deusto.sd.auctions.service.AuctionsService;
-import es.deusto.sd.auctions.service.AuthService;
+import es.deusto.sd.ecoembes.entity.Article;
+import es.deusto.sd.ecoembes.entity.Category;
+import es.deusto.sd.ecoembes.entity.User;
+import es.deusto.sd.ecoembes.service.AuthService;
+import es.deusto.sd.ecoembes.service.EcoembesService;
 
 @Configuration
 public class DataInitializer {
@@ -27,7 +27,7 @@ public class DataInitializer {
 	private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
 	@Bean
-	CommandLineRunner initData(AuctionsService auctionsService, AuthService authService) {
+	CommandLineRunner initData(EcoembesService auctionsService, AuthService authService) {
 		return args -> {
 			// Create some users
 			User batman = new User("BruceWayne", "batman@nigger.com", "Batm@n123!nnnnniiiii");
