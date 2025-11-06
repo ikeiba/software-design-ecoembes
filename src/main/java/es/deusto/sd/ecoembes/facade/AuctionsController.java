@@ -23,7 +23,7 @@ import es.deusto.sd.ecoembes.dto.ArticleDTO;
 import es.deusto.sd.ecoembes.dto.CategoryDTO;
 import es.deusto.sd.ecoembes.entity.Article;
 import es.deusto.sd.ecoembes.entity.Category;
-import es.deusto.sd.ecoembes.entity.User;
+import es.deusto.sd.ecoembes.entity.Employee;
 import es.deusto.sd.ecoembes.service.AuthService;
 import es.deusto.sd.ecoembes.service.CurrencyService;
 import es.deusto.sd.ecoembes.service.EcoembesService;
@@ -157,7 +157,7 @@ public class AuctionsController {
 			@Parameter(name = "currency", description = "Currency", required = true, example = "EUR") @RequestParam("currency") String currentCurrency,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Authorization token in plain text", required = true) @RequestBody String token) {
 		try {
-			User user = authService.getUserByToken(token);
+			Employee user = authService.getUserByToken(token);
 
 			if (user == null) {
 				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
