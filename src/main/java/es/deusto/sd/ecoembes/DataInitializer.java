@@ -15,9 +15,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import es.deusto.sd.ecoembes.entity.Article;
-import es.deusto.sd.ecoembes.entity.Category;
-import es.deusto.sd.ecoembes.entity.User;
+import es.deusto.sd.ecoembes.entity.Dumpster;
+import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;
+import es.deusto.sd.ecoembes.entity.Employee;
+import es.deusto.sd.ecoembes.entity.FillLevel;
+import es.deusto.sd.ecoembes.entity.RecyclingPlant;
 import es.deusto.sd.ecoembes.service.AuthService;
 import es.deusto.sd.ecoembes.service.EcoembesService;
 
@@ -29,8 +31,8 @@ public class DataInitializer {
 	@Bean
 	CommandLineRunner initData(EcoembesService auctionsService, AuthService authService) {
 		return args -> {
-			// Create some users
-			User batman = new User("BruceWayne", "batman@nigger.com", "Batm@n123!nnnnniiiii");
+			/*  Create some users
+			User batman = new User("BruceWayne", "batman@marvel.com", "Batm@n123!nnnnniiiii");
 			User spiderman = new User("PeterParker", "spiderman@marvel.com", "Sp!derM4n2023");
 			User superman = new User("ClarkKent", "superman@dc.com", "Sup3rm@n456!");
 			User wonderWoman = new User("DianaPrince", "wonderwoman@dc.com", "Wond3rW0m@n!789");
@@ -100,6 +102,7 @@ public class DataInitializer {
 			auctionsService.addArticle(f150);
 			auctionsService.addArticle(corvette);
 			logger.info("Articles saved!");
+			*/
 		};
 	}
 }

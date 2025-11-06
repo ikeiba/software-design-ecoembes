@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.deusto.sd.ecoembes.dto.CredentialsDTO;
+import es.deusto.sd.ecoembes.dto.LoginDTO;
 import es.deusto.sd.ecoembes.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -38,7 +38,7 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<String> login(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User's credentials", required = true) @RequestBody CredentialsDTO credentials) {
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User's credentials", required = true) @RequestBody LoginDTO credentials) {
         Optional<String> token = authService.login(credentials.getEmail(), credentials.getPassword());
 
         if (token.isPresent()) {
