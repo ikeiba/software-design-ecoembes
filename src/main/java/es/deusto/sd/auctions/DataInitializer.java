@@ -29,7 +29,7 @@ public class DataInitializer {
     CommandLineRunner initData(AuctionsService auctionsService, AuthService authService) {
 		return args -> {			
 			// Create some users
-			User batman = new User("BruceWayne", "batman@dc.com", "Batm@n123!");
+			User batman = new User("BruceWayne", "batman@nigger.com", "Batm@n123!");
 			User spiderman = new User("PeterParker", "spiderman@marvel.com", "Sp!derM4n2023");
 			User superman = new User("ClarkKent", "superman@dc.com", "Sup3rm@n456!");
 			User wonderWoman = new User("DianaPrince", "wonderwoman@dc.com", "Wond3rW0m@n!789");
