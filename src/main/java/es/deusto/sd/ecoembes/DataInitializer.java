@@ -5,21 +5,21 @@
  */
 package es.deusto.sd.ecoembes;
 
-//nigger
-import java.util.Calendar;
-import java.util.Date;
-
+import java.time.LocalDate; // Importante para las fechas de historial
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+// Importa las entidades de RECICLAJE
+import es.deusto.sd.ecoembes.entity.Employee;
+import es.deusto.sd.ecoembes.entity.RecyclingPlant;
 import es.deusto.sd.ecoembes.entity.Dumpster;
 import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;
-import es.deusto.sd.ecoembes.entity.Employee;
 import es.deusto.sd.ecoembes.entity.FillLevel;
-import es.deusto.sd.ecoembes.entity.RecyclingPlant;
+
+// Importa los servicios (¡necesitarán ser actualizados!)
 import es.deusto.sd.ecoembes.service.AuthService;
 import es.deusto.sd.ecoembes.service.EcoembesService;
 
@@ -29,80 +29,53 @@ public class DataInitializer {
 	private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
 	@Bean
-	CommandLineRunner initData(EcoembesService auctionsService, AuthService authService) {
+	CommandLineRunner initData(EcoembesService ecoembesService, AuthService authService) {
 		return args -> {
-			/*  Create some users
-			User batman = new User("BruceWayne", "batman@marvel.com", "Batm@n123!nnnnniiiii");
-			User spiderman = new User("PeterParker", "spiderman@marvel.com", "Sp!derM4n2023");
-			User superman = new User("ClarkKent", "superman@dc.com", "Sup3rm@n456!");
-			User wonderWoman = new User("DianaPrince", "wonderwoman@dc.com", "Wond3rW0m@n!789");
-			User captainMarvel = new User("CarolDanvers", "captainmarvel@marvel.com", "C@ptMarv3l#987");
-			User blackWidow = new User("NatashaRomanoff", "blackwidow@marvel.com", "Bl@ckWid0w2023");
 
-			authService.addUser(batman);
-			authService.addUser(spiderman);
-			authService.addUser(superman);
-			authService.addUser(wonderWoman);
-			authService.addUser(captainMarvel);
-			authService.addUser(blackWidow);
+			// --- 1. Crear Empleados ---
+            // (Asumimos que AuthService será adaptado para Empleados)
+			Employee emp1 = new Employee("E001", "Empleado 1", "emp1@eco.com", "Athletic123");
+			Employee emp2 = new Employee("E002", "Empleado 2", "emp2@eco.com", "Seguridad456");
+			
+            // authService.addEmployee(emp1); // Necesitarás crear este método en AuthService
+			// authService.addEmployee(emp2); // y un repositorio de Employees.
+			logger.info("Employees saved!");
 
-			logger.info("Users saved!");
 
-			// Create some categories
-			Category electronics = new Category("Electronics");
-			Category sports = new Category("Sporting Goods");
-			Category motors = new Category("Motors");
+			// --- 2. Crear Plantas de Reciclaje ---
+			RecyclingPlant plant1 = new RecyclingPlant("PlasSB", "Plásticos San Bizente");
+			RecyclingPlant plant2 = new RecyclingPlant("ContSocket", "Contenedores S.L.");
 
-			auctionsService.addCategory(electronics);
-			auctionsService.addCategory(sports);
-			auctionsService.addCategory(motors);
-			logger.info("Categories saved!");
+            // ecoembesService.addPlant(plant1); // Necesitarás crear este método en EcoembesService
+            // ecoembesService.addPlant(plant2); // y un repositorio de RecyclingPlants.
+			logger.info("Recycling Plants saved!");
 
-			// Initialize auctions end date
-			Calendar calendar = Calendar.getInstance();
 
-			// Set calendar to December 31, current year
-			calendar.set(Calendar.MONTH, Calendar.DECEMBER);
-			calendar.set(Calendar.DAY_OF_MONTH, 31);
-			calendar.set(Calendar.HOUR_OF_DAY, 23);
-			calendar.set(Calendar.MINUTE, 59);
-			calendar.set(Calendar.SECOND, 59);
-			calendar.set(Calendar.MILLISECOND, 999);
-			/// blaballaeucaoheuac,.hntbuei
-			Date auctionEndDate = calendar.getTime();
+			// --- 3. Crear Contenedores (Dumpsters) ---
+			
+            // Contenedor 1: Bilbao
+            Dumpster d1 = new Dumpster("D-BI-001", "Plaza Moyua, Bilbao", 3800.0);
+            // Añadimos historial simulado
+			d1.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 1200, FillLevel.GREEN));
+			d1.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 1800, FillLevel.ORANGE));
+            // El método updateStatus añade el registro de "hoy" y actualiza el estado
+			d1.updateStatus(1950, FillLevel.ORANGE); 
 
-			// Articles of Electronics category
-			Article iphone = new Article(0, "Apple iPhone 14 Pro", 999.99f, auctionEndDate, electronics, batman);
-			Article ps5 = new Article(1, "Sony PlayStation 5", 499.99f, auctionEndDate, electronics, spiderman);
-			Article macbook = new Article(2, "MacBook Air M2", 1199.99f, auctionEndDate, electronics, wonderWoman);
-			Article samsung = new Article(3, "Samsung Galaxy S21", 799.99f, auctionEndDate, electronics, captainMarvel);
-			// Articles of Sporting Goods category
-			Article tennisRacket = new Article(4, "Wilson Tennis Racket", 119.99f, auctionEndDate, sports, batman);
-			Article soccerBall = new Article(5, "Adidas Soccer Ball", 29.99f, auctionEndDate, sports, blackWidow);
-			Article fitbit = new Article(6, "Fitbit Charge 5 Fitness Tracker", 149.99f, auctionEndDate, sports,
-					captainMarvel);
-			Article peloton = new Article(7, "Peloton Exercise Bike", 1899.99f, auctionEndDate, sports, wonderWoman);
-			// Articles of Motors category
-			Article tesla = new Article(8, "Tesla Model 3", 42999.99f, auctionEndDate, motors, batman);
-			Article civic = new Article(9, "Honda Civic 2021", 21999.99f, auctionEndDate, motors, superman);
-			Article f150 = new Article(10, "Ford F-150 Pickup Truck", 33999.99f, auctionEndDate, motors, spiderman);
-			Article corvette = new Article(11, "Chevrolet Corvette Stingray", 59999.99f, auctionEndDate, motors,
-					captainMarvel);
+            // Contenedor 2: Bilbao
+			Dumpster d2 = new Dumpster("D-BI-002", "Gran Vía 50, Bilbao", 3800.0);
+			d2.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 200, FillLevel.GREEN));
+			d2.updateStatus(350, FillLevel.GREEN); // Hoy
 
-			auctionsService.addArticle(iphone);
-			auctionsService.addArticle(ps5);
-			auctionsService.addArticle(macbook);
-			auctionsService.addArticle(samsung);
-			auctionsService.addArticle(tennisRacket);
-			auctionsService.addArticle(soccerBall);
-			auctionsService.addArticle(fitbit);
-			auctionsService.addArticle(peloton);
-			auctionsService.addArticle(tesla);
-			auctionsService.addArticle(civic);
-			auctionsService.addArticle(f150);
-			auctionsService.addArticle(corvette);
-			logger.info("Articles saved!");
-			*/
+            // Contenedor 3: Donostia
+			Dumpster d3 = new Dumpster("D-SS-001", "Playa de la Concha, Donostia", 4200.0);
+			d3.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 3500, FillLevel.ORANGE));
+			d3.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 4000, FillLevel.RED));
+			d3.updateStatus(4150, FillLevel.RED); // Hoy
+
+            // ecoembesService.addDumpster(d1); // Necesitarás crear este método en EcoembesService
+            // ecoembesService.addDumpster(d2); // y un repositorio de Dumpsters.
+            // ecoembesService.addDumpster(d3);
+			logger.info("Dumpsters saved!");
 		};
 	}
 }
