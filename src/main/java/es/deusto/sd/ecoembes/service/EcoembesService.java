@@ -230,4 +230,20 @@ public class EcoembesService {
 			if (!ids.contains(did)) ids.add(did);
 		}
 	}
+
+	// Crea el metodo ecoembesService.addDumpster utilizado en DataInitializer
+	public void addDumpster(Dumpster dumpster) {
+		if (dumpster != null && dumpster.getId() != null) {
+			dumpsterRepository.putIfAbsent(dumpster.getId(), dumpster);
+		}
+	}	
+
+	// Crea el metodo ecoembesService.addPlant utilizado en DataInitializer
+	public void addPlant(RecyclingPlant plant) {
+		if (plant != null && plant.getPlantId() != null) {
+			plantRepository.putIfAbsent(plant.getPlantId(), plant);
+			plantAssignments.putIfAbsent(plant.getPlantId(), new ArrayList<>());
+		}
+	}
+
 }

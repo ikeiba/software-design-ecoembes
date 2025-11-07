@@ -93,4 +93,12 @@ public class AuthService {
     private static synchronized String generateToken() {
         return Long.toHexString(System.currentTimeMillis());
     }
+
+    // Crea el metodo addEmployee para añadir empleados al repositorio
+    public void addEmployeeToRepository(Employee employee) {
+        if (employee != null && !userRepository.containsKey(employee.getEmail())) {
+            userRepository.put(employee.getEmail(), employee);
+        }
+    }
+
 }

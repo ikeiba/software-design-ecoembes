@@ -37,8 +37,8 @@ public class DataInitializer {
 			Employee emp1 = new Employee("E001", "Empleado 1", "emp1@eco.com", "Athletic123");
 			Employee emp2 = new Employee("E002", "Empleado 2", "emp2@eco.com", "Seguridad456");
 			
-            // authService.addEmployee(emp1); // Necesitarás crear este método en AuthService
-			// authService.addEmployee(emp2); // y un repositorio de Employees.
+            authService.addEmployee(emp1); // Necesitarás crear este método en AuthService
+			authService.addEmployee(emp2); // y un repositorio de Employees.
 			logger.info("Employees saved!");
 
 
@@ -46,8 +46,8 @@ public class DataInitializer {
 			RecyclingPlant plant1 = new RecyclingPlant("PlasSB", "Plásticos San Bizente");
 			RecyclingPlant plant2 = new RecyclingPlant("ContSocket", "Contenedores S.L.");
 
-            // ecoembesService.addPlant(plant1); // Necesitarás crear este método en EcoembesService
-            // ecoembesService.addPlant(plant2); // y un repositorio de RecyclingPlants.
+            ecoembesService.addPlant(plant1); // Necesitarás crear este método en EcoembesService
+            ecoembesService.addPlant(plant2); // y un repositorio de RecyclingPlants.
 			logger.info("Recycling Plants saved!");
 
 
@@ -72,9 +72,9 @@ public class DataInitializer {
 			d3.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 4000, FillLevel.RED));
 			d3.updateStatus(4150, FillLevel.RED); // Hoy
 
-            // ecoembesService.addDumpster(d1); // Necesitarás crear este método en EcoembesService
-            // ecoembesService.addDumpster(d2); // y un repositorio de Dumpsters.
-            // ecoembesService.addDumpster(d3);
+            ecoembesService.addDumpster(d1); // Necesitarás crear este método en EcoembesService
+            ecoembesService.addDumpster(d2); // y un repositorio de Dumpsters.
+            ecoembesService.addDumpster(d3);
 			logger.info("Dumpsters saved!");
 		};
 	}
