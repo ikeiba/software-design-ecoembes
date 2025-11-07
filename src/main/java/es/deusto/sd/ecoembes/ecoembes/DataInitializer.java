@@ -3,7 +3,7 @@
  * adapted using GitHub Copilot. It has been thoroughly reviewed 
  * and validated to ensure correctness and that it is free of errors.
  */
-package es.deusto.sd.ecoembes;
+package es.deusto.sd.ecoembes.ecoembes;
 
 import java.time.LocalDate; // Importante para las fechas de historial
 import org.slf4j.Logger;
