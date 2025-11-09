@@ -56,7 +56,10 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Authorization token in plain text", required = true) @RequestBody String token) {
-        Optional<Boolean> result = authService.logout(token);
+        // Remove surrounding quotes if present (Spring adds them when parsing plain string from JSON)
+        String cleanToken = token.replaceAll("^\"|\"$", "");
+        
+        Optional<Boolean> result = authService.logout(cleanToken);
 
         if (result.isPresent() && result.get()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
