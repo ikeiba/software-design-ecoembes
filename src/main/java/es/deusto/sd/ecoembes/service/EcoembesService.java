@@ -14,23 +14,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import es.deusto.sd.ecoembes.dto.AssignmentDTO;
-import es.deusto.sd.ecoembes.dto.DumpsterDTO;
-import es.deusto.sd.ecoembes.dto.DumpsterStatusDTO;
-import es.deusto.sd.ecoembes.dto.DumpsterUpdateDTO;
-import es.deusto.sd.ecoembes.dto.DumpsterUsageDTO;
-import es.deusto.sd.ecoembes.dto.NewDumpsterDTO;
-import es.deusto.sd.ecoembes.dto.PlantCapacityDTO;
 import es.deusto.sd.ecoembes.entity.Dumpster;
 import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;
+import es.deusto.sd.ecoembes.entity.FillLevel;
 import es.deusto.sd.ecoembes.entity.RecyclingPlant;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class EcoembesService {
-
-	private final AuthService authService;
 
 	// In-memory repositories (simulation)
 	private final Map<String, Dumpster> dumpsterRepository = new HashMap<>();
@@ -38,10 +28,7 @@ public class EcoembesService {
 	// plantId -> list of dumpsterIds
 	private final Map<String, List<String>> plantAssignments = new HashMap<>();
 
-	@Autowired
-	public EcoembesService(AuthService authService) {
-		this.authService = authService;
-
+	public EcoembesService() {
 		// Seed some demo plants
 		RecyclingPlant p1 = new RecyclingPlant("PlasSB", "PlasSB Ltd.");
 		RecyclingPlant p2 = new RecyclingPlant("ContSocket", "ContSocket SA");
@@ -51,199 +38,248 @@ public class EcoembesService {
 		plantAssignments.put(p2.getPlantId(), new ArrayList<>());
 	}
 
-	// -------------------------- Token-protected API (requested) --------------------------
+	// -------------------------- Service methods (work only with entities) --------------------------
 
-	public DumpsterDTO registerNewDumpster(String token, NewDumpsterDTO dto) {
-		// Validate token
-		if (token == null || authService.getUserByToken(token) == null) {
-			throw new IllegalArgumentException("Invalid or missing token");
+	/**
+	 * Updates the status of a dumpster with sensor data
+	 */
+	public void updateDumpsterInfo(String dumpsterId, int estimatedContainers, FillLevel fillLevel) {
+		if (dumpsterId == null || dumpsterId.isBlank()) {
+			throw new IllegalArgumentException("Dumpster ID cannot be null or empty");
+		}
+		if (estimatedContainers < 0) {
+			throw new IllegalArgumentException("Estimated containers cannot be negative");
+		}
+		if (fillLevel == null) {
+			throw new IllegalArgumentException("Fill level cannot be null");
 		}
 
-		if (dto == null || dto.getDumpsterId() == null || dto.getDumpsterId().isBlank()) {
-			throw new IllegalArgumentException("Invalid dumpster data");
+		Dumpster d = dumpsterRepository.get(dumpsterId);
+		if (d == null) {
+			throw new RuntimeException("Dumpster not found");
 		}
 
-		if (dumpsterRepository.containsKey(dto.getDumpsterId())) {
+		d.updateStatus(estimatedContainers, fillLevel);
+	}
+
+	/**
+	 * Creates a new dumpster
+	 */
+	public Dumpster createDumpster(String dumpsterId, String location, String postalCode, double initialCapacity) {
+		if (dumpsterId == null || dumpsterId.isBlank()) {
+			throw new IllegalArgumentException("Dumpster ID cannot be null or empty");
+		}
+		if (location == null || location.isBlank()) {
+			throw new IllegalArgumentException("Location cannot be null or empty");
+		}
+		if (postalCode == null || postalCode.isBlank()) {
+			throw new IllegalArgumentException("Postal code cannot be null or empty");
+		}
+		if (initialCapacity <= 0) {
+			throw new IllegalArgumentException("Initial capacity must be greater than zero");
+		}
+
+		if (dumpsterRepository.containsKey(dumpsterId)) {
 			throw new IllegalArgumentException("Dumpster with this id already exists");
 		}
 
-		Dumpster d = new Dumpster(dto.getDumpsterId(), dto.getLocation(), dto.getInitialCapacity());
+		Dumpster d = new Dumpster(dumpsterId, location, postalCode, initialCapacity);
 		dumpsterRepository.put(d.getId(), d);
-
-		return new DumpsterDTO(d.getId(), d.getLocation(), d.getCapacity());
+		return d;
 	}
 
-	public List<DumpsterStatusDTO> getDumpsterStatusByArea(String token, String postalCode, LocalDate date) {
-		if (token == null || authService.getUserByToken(token) == null) {
-			throw new IllegalArgumentException("Invalid or missing token");
+	/**
+	 * Gets usage history for a dumpster within a date range
+	 */
+	public List<DumpsterUsageRecord> getDumpsterUsage(String dumpsterId, LocalDate startDate, LocalDate endDate) {
+		if (dumpsterId == null || dumpsterId.isBlank()) {
+			throw new IllegalArgumentException("Invalid dumpster ID");
+		}
+		if (startDate == null || endDate == null) {
+			throw new IllegalArgumentException("Start date and end date cannot be null");
+		}
+		if (startDate.isAfter(endDate)) {
+			throw new IllegalArgumentException("Start date must be before or equal to end date");
 		}
 
-		// Simple location filtering: check if dumpster.location contains postalCode
+		Dumpster d = dumpsterRepository.get(dumpsterId);
+		if (d == null) {
+			throw new RuntimeException("Dumpster not found");
+		}
+
+		return d.getUsageHistory().stream()
+				.filter(r -> !(r.getDate().isBefore(startDate) || r.getDate().isAfter(endDate)))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Gets all dumpsters in a specific postal code area with their status on a given date
+	 */
+	public List<Dumpster> getDumpstersByArea(String postalCode) {
+		if (postalCode == null || postalCode.isBlank()) {
+			throw new IllegalArgumentException("Postal code cannot be null or empty");
+		}
+
 		return dumpsterRepository.values().stream()
-				.filter(d -> d.getLocation() != null && d.getLocation().contains(postalCode))
-				.map(d -> {
-					// Look for usage record on the requested date
-					DumpsterUsageRecord match = d.getUsageHistory().stream()
-							.filter(r -> r.getDate().equals(date))
-							.findFirst().orElse(null);
-
-					if (match != null) {
-						return new DumpsterStatusDTO(d.getId(), d.getLocation(), match.getFillLevel());
-					} else {
-						return new DumpsterStatusDTO(d.getId(), d.getLocation(), d.getFillLevel());
-					}
-				}).collect(Collectors.toList());
+				.filter(d -> d.getPostalCode() != null && d.getPostalCode().equals(postalCode))
+				.collect(Collectors.toList());
 	}
 
-	public List<PlantCapacityDTO> getPlantCapacities(String token, LocalDate date) {
-		if (token == null || authService.getUserByToken(token) == null) {
-			throw new IllegalArgumentException("Invalid or missing token");
+	/**
+	 * Gets the fill level for a dumpster on a specific date
+	 */
+	public FillLevel getDumpsterFillLevelOnDate(Dumpster dumpster, LocalDate date) {
+		if (dumpster == null) {
+			throw new IllegalArgumentException("Dumpster cannot be null");
+		}
+		if (date == null) {
+			throw new IllegalArgumentException("Date cannot be null");
 		}
 
-		List<PlantCapacityDTO> result = new ArrayList<>();
+		DumpsterUsageRecord match = dumpster.getUsageHistory().stream()
+				.filter(r -> r.getDate().equals(date))
+				.findFirst().orElse(null);
 
-		// For simplicity: availableCapacityTons = total assigned dumpster capacities (kg->tons) - occupiedTons
-		// occupiedTons approximated as sum(estimatedContainers * 0.05)
-		for (Map.Entry<String, RecyclingPlant> entry : plantRepository.entrySet()) {
-			String plantId = entry.getKey();
-			List<String> assigned = plantAssignments.getOrDefault(plantId, new ArrayList<>());
+		return (match != null) ? match.getFillLevel() : dumpster.getFillLevel();
+	}
 
-			double totalCapacityTons = 0.0;
-			double occupiedTons = 0.0;
+	/**
+	 * Gets all recycling plants
+	 */
+	public List<RecyclingPlant> getAllPlants() {
+		return new ArrayList<>(plantRepository.values());
+	}
 
-			for (String did : assigned) {
-				Dumpster d = dumpsterRepository.get(did);
-				if (d == null) continue;
-				totalCapacityTons += d.getCapacity() / 1000.0; // assume capacity in kg -> tons
+	/**
+	 * Gets all dumpsters assigned to a plant
+	 */
+	public List<Dumpster> getAssignedDumpsters(String plantId) {
+		if (plantId == null || plantId.isBlank()) {
+			throw new IllegalArgumentException("Plant ID cannot be null or empty");
+		}
 
-				// Use the usage record for the date if available, else current estimate
-				DumpsterUsageRecord match = d.getUsageHistory().stream()
-						.filter(r -> r.getDate().equals(date))
-						.findFirst().orElse(null);
+		List<String> assignedIds = plantAssignments.getOrDefault(plantId, new ArrayList<>());
+		return assignedIds.stream()
+				.map(dumpsterRepository::get)
+				.filter(d -> d != null)  // Filter out deleted dumpsters
+				.collect(Collectors.toList());
+	}
 
-				int containers = (match != null) ? match.getEstimatedContainers() : d.getEstimatedContainers();
-				occupiedTons += containers * 0.05; // heuristic: 0.05 tons per container
+	/**
+	 * Calculates available capacity for a plant on a given date
+	 */
+	public double calculatePlantCapacity(String plantId, LocalDate date) {
+		if (plantId == null || plantId.isBlank()) {
+			throw new IllegalArgumentException("Plant ID cannot be null or empty");
+		}
+		if (date == null) {
+			throw new IllegalArgumentException("Date cannot be null");
+		}
+		if (!plantRepository.containsKey(plantId)) {
+			throw new RuntimeException("Plant not found");
+		}
+
+		List<String> assigned = plantAssignments.getOrDefault(plantId, new ArrayList<>());
+
+		double totalCapacityTons = 0.0;
+		double occupiedTons = 0.0;
+
+		for (String did : assigned) {
+			Dumpster d = dumpsterRepository.get(did);
+			if (d == null) {
+				continue; // Skip dumpsters that don't exist
 			}
+			
+			double capacityKg = d.getCapacity();
+			totalCapacityTons += capacityKg / 1000.0; // kg -> tons
 
-			double available = Math.max(0.0, totalCapacityTons - occupiedTons);
-			result.add(new PlantCapacityDTO(plantId, available));
+			// Use the usage record for the date if available, else current fill level
+			DumpsterUsageRecord match = d.getUsageHistory().stream()
+					.filter(r -> r.getDate().equals(date))
+					.findFirst().orElse(null);
+
+			FillLevel fillLevel = (match != null) ? match.getFillLevel() : d.getFillLevel();
+			
+			// Calculate occupied weight based on fill level percentage
+			double fillPercentage = getFillLevelPercentage(fillLevel);
+			double occupiedKg = capacityKg * fillPercentage;
+			occupiedTons += occupiedKg / 1000.0;
 		}
 
-		return result;
+		return Math.max(0.0, totalCapacityTons - occupiedTons);
 	}
 
-	public void assignDumpstersToPlant(String token, AssignmentDTO assignment) {
-		if (token == null || authService.getUserByToken(token) == null) {
-			throw new IllegalArgumentException("Invalid or missing token");
+	/**
+	 * Helper method to convert FillLevel enum to percentage
+	 */
+	private double getFillLevelPercentage(FillLevel fillLevel) {
+		switch (fillLevel) {
+			case GREEN:
+				return 0.33; // 0-33% full
+			case ORANGE:
+				return 0.66; // 33-66% full
+			case RED:
+				return 0.90; // 66-100% full (assume 90% average)
+			default:
+				return 0.0;
+		}
+	}
+
+	/**
+	 * Assigns dumpsters to a recycling plant
+	 */
+	public void assignDumpstersToPlant(String plantId, List<String> dumpsterIds) {
+		if (plantId == null || plantId.isBlank()) {
+			throw new IllegalArgumentException("Invalid plant ID");
+		}
+		if (dumpsterIds == null || dumpsterIds.isEmpty()) {
+			throw new IllegalArgumentException("Dumpster IDs list cannot be null or empty");
 		}
 
-		if (assignment == null || assignment.getPlantId() == null) {
-			throw new IllegalArgumentException("Invalid assignment");
-		}
-
-		String plantId = assignment.getPlantId();
 		if (!plantRepository.containsKey(plantId)) {
 			throw new RuntimeException("Plant not found");
 		}
 
 		List<String> ids = plantAssignments.computeIfAbsent(plantId, k -> new ArrayList<>());
 
-		for (String did : assignment.getDumpsterIds()) {
+		for (String did : dumpsterIds) {
+			if (did == null || did.isBlank()) {
+				throw new IllegalArgumentException("Dumpster ID cannot be null or empty");
+			}
 			if (!dumpsterRepository.containsKey(did)) {
 				throw new RuntimeException("Dumpster not found: " + did);
 			}
-			if (!ids.contains(did)) ids.add(did);
+			if (!ids.contains(did)) {
+				ids.add(did);
+			}
 		}
 	}
 
-	public void receiveSensorUpdate(DumpsterUpdateDTO update) {
-		if (update == null || update.getDumpsterId() == null) {
-			throw new IllegalArgumentException("Invalid update");
-		}
-
-		Dumpster d = dumpsterRepository.get(update.getDumpsterId());
-		if (d == null) {
-			throw new RuntimeException("Dumpster not found");
-		}
-
-		d.updateStatus(update.getEstimatedContainers(), update.getFillLevel());
-	}
-
-	// -------------------------- Backwards-compatible methods used by controller --------------------------
-
-	public void updateDumpsterInfo(DumpsterUpdateDTO updateDTO) {
-		// Controller version that doesn't use token: accept updates without auth
-		receiveSensorUpdate(updateDTO);
-	}
-
-	public DumpsterDTO createDumpster(NewDumpsterDTO newDumpsterDTO) {
-		// Controller version without token: create dumpster without auth
-		if (newDumpsterDTO == null) throw new IllegalArgumentException("Invalid dumpster data");
-		if (dumpsterRepository.containsKey(newDumpsterDTO.getDumpsterId()))
-			throw new IllegalArgumentException("Dumpster with this id already exists");
-
-		Dumpster d = new Dumpster(newDumpsterDTO.getDumpsterId(), newDumpsterDTO.getLocation(), newDumpsterDTO.getInitialCapacity());
-		dumpsterRepository.put(d.getId(), d);
-		return new DumpsterDTO(d.getId(), d.getLocation(), d.getCapacity());
-	}
-
-	public List<DumpsterUsageDTO> getDumpsterUsage(String dumpsterId, LocalDate startDate, LocalDate endDate) {
-		Dumpster d = dumpsterRepository.get(dumpsterId);
-		if (d == null) throw new RuntimeException("Dumpster not found");
-
-		return d.getUsageHistory().stream()
-				.filter(r -> !(r.getDate().isBefore(startDate) || r.getDate().isAfter(endDate)))
-				.map(r -> new DumpsterUsageDTO(r.getDate(), r.getEstimatedContainers(), r.getFillLevel()))
-				.collect(Collectors.toList());
-	}
-
-	public List<DumpsterStatusDTO> getDumpsterStatusByArea(String postalCode, LocalDate date) {
-		// Controller-facing method without token
-		return dumpsterRepository.values().stream()
-				.filter(d -> d.getLocation() != null && d.getLocation().contains(postalCode))
-				.map(d -> {
-					DumpsterUsageRecord match = d.getUsageHistory().stream()
-							.filter(r -> r.getDate().equals(date))
-							.findFirst().orElse(null);
-					if (match != null) {
-						return new DumpsterStatusDTO(d.getId(), d.getLocation(), match.getFillLevel());
-					} else {
-						return new DumpsterStatusDTO(d.getId(), d.getLocation(), d.getFillLevel());
-					}
-				}).collect(Collectors.toList());
-	}
-
-	public List<PlantCapacityDTO> getRecyclingPlantCapacity(LocalDate date) {
-		// Controller-facing method without token
-		return getPlantCapacities(null, date).stream().collect(Collectors.toList());
-	}
-
-	public void assignDumpstersToPlant(AssignmentDTO assignmentDTO) {
-		// Controller-facing method without token
-		if (assignmentDTO == null) throw new IllegalArgumentException("Invalid assignment");
-		String plantId = assignmentDTO.getPlantId();
-		if (!plantRepository.containsKey(plantId)) throw new RuntimeException("Plant not found");
-
-		List<String> ids = plantAssignments.computeIfAbsent(plantId, k -> new ArrayList<>());
-		for (String did : assignmentDTO.getDumpsterIds()) {
-			if (!dumpsterRepository.containsKey(did)) throw new RuntimeException("Dumpster not found: " + did);
-			if (!ids.contains(did)) ids.add(did);
-		}
-	}
-
-	// Crea el metodo ecoembesService.addDumpster utilizado en DataInitializer
+	/**
+	 * Adds a dumpster to the repository (used by DataInitializer)
+	 */
 	public void addDumpster(Dumpster dumpster) {
-		if (dumpster != null && dumpster.getId() != null) {
-			dumpsterRepository.putIfAbsent(dumpster.getId(), dumpster);
+		if (dumpster == null) {
+			throw new IllegalArgumentException("Dumpster cannot be null");
 		}
+		if (dumpster.getId() == null || dumpster.getId().isBlank()) {
+			throw new IllegalArgumentException("Dumpster ID cannot be null or empty");
+		}
+		dumpsterRepository.putIfAbsent(dumpster.getId(), dumpster);
 	}	
 
-	// Crea el metodo ecoembesService.addPlant utilizado en DataInitializer
+	/**
+	 * Adds a recycling plant to the repository (used by DataInitializer)
+	 */
 	public void addPlant(RecyclingPlant plant) {
-		if (plant != null && plant.getPlantId() != null) {
-			plantRepository.putIfAbsent(plant.getPlantId(), plant);
-			plantAssignments.putIfAbsent(plant.getPlantId(), new ArrayList<>());
+		if (plant == null) {
+			throw new IllegalArgumentException("Plant cannot be null");
 		}
+		if (plant.getPlantId() == null || plant.getPlantId().isBlank()) {
+			throw new IllegalArgumentException("Plant ID cannot be null or empty");
+		}
+		plantRepository.putIfAbsent(plant.getPlantId(), plant);
+		plantAssignments.putIfAbsent(plant.getPlantId(), new ArrayList<>());
 	}
 
 }

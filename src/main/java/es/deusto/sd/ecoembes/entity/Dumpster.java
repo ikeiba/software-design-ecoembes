@@ -7,6 +7,7 @@ public class Dumpster {
 
   private String id; // Unique identifier [cite: 73]
   private String location; // Location (address) [cite: 73]
+  private String postalCode; // Postal code
   private double capacity; // Initial capacity [cite: 88]
 
   // Current Status (simulated from sensor updates)
@@ -21,9 +22,10 @@ public class Dumpster {
     this.usageHistory = new ArrayList<>();
   }
 
-  public Dumpster(String id, String location, double capacity) {
+  public Dumpster(String id, String location, String postalCode, double capacity) {
     this.id = id;
     this.location = location;
+    this.postalCode = postalCode;
     this.capacity = capacity;
     this.fillLevel = FillLevel.GREEN; // Default initial state
     this.estimatedContainers = 0;
@@ -53,6 +55,14 @@ public class Dumpster {
 
   public void setLocation(String location) {
     this.location = location;
+  }
+
+  public String getPostalCode() {
+    return postalCode;
+  }
+
+  public void setPostalCode(String postalCode) {
+    this.postalCode = postalCode;
   }
 
   public double getCapacity() {

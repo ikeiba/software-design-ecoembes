@@ -3,15 +3,17 @@ package es.deusto.sd.ecoembes.dto;
 public class NewDumpsterDTO {
   private String dumpsterId;
   private String location;
+  private String postalCode;
   private double initialCapacity; // As per source
 
   // Constructors
   public NewDumpsterDTO() {
   }
 
-  public NewDumpsterDTO(String dumpsterId, String location, double initialCapacity) {
+  public NewDumpsterDTO(String dumpsterId, String location, String postalCode, double initialCapacity) {
     this.dumpsterId = dumpsterId;
     this.location = location;
+    this.postalCode = postalCode;
     this.initialCapacity = initialCapacity;
   }
 
@@ -30,6 +32,14 @@ public class NewDumpsterDTO {
 
   public void setLocation(String location) {
     this.location = location;
+  }
+
+  public String getPostalCode() {
+    return postalCode;
+  }
+
+  public void setPostalCode(String postalCode) {
+    this.postalCode = postalCode;
   }
 
   public double getInitialCapacity() {

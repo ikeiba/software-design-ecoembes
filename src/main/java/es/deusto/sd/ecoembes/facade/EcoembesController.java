@@ -9,6 +9,9 @@ import es.deusto.sd.ecoembes.dto.DumpsterUpdateDTO;
 import es.deusto.sd.ecoembes.dto.DumpsterUsageDTO;
 import es.deusto.sd.ecoembes.dto.NewDumpsterDTO;
 import es.deusto.sd.ecoembes.dto.PlantCapacityDTO;
+import es.deusto.sd.ecoembes.entity.Dumpster;
+import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;
+import es.deusto.sd.ecoembes.entity.RecyclingPlant;
 import es.deusto.sd.ecoembes.service.EcoembesService;
 
 import org.springframework.http.ResponseEntity;
@@ -42,7 +45,12 @@ public class EcoembesController {
     @PutMapping("/dumpsters/update")
     public ResponseEntity<String> updateDumpsterInfo(@RequestBody DumpsterUpdateDTO updateDTO) {
         try {
-            ecoembesService.updateDumpsterInfo(updateDTO);
+            // Convert DTO to entity parameters and call service
+            ecoembesService.updateDumpsterInfo(
+                updateDTO.getDumpsterId(),
+                updateDTO.getEstimatedContainers(),
+                updateDTO.getFillLevel()
+            );
             return new ResponseEntity<>("Actualización recibida", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -60,8 +68,22 @@ public class EcoembesController {
     @PostMapping("/dumpsters")
     public ResponseEntity<DumpsterDTO> createDumpster(@RequestBody NewDumpsterDTO newDumpsterDTO) {
         try {
-            DumpsterDTO created = ecoembesService.createDumpster(newDumpsterDTO);
-            return new ResponseEntity<>(created, HttpStatus.CREATED);
+            // Convert DTO to entity parameters and call service
+            Dumpster dumpster = ecoembesService.createDumpster(
+                newDumpsterDTO.getDumpsterId(),
+                newDumpsterDTO.getLocation(),
+                newDumpsterDTO.getPostalCode(),
+                newDumpsterDTO.getInitialCapacity()
+            );
+            
+            // Convert entity back to DTO
+            DumpsterDTO responseDTO = new DumpsterDTO(
+                dumpster.getId(),
+                dumpster.getLocation(),
+                dumpster.getCapacity()
+            );
+            
+            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
@@ -82,7 +104,17 @@ public class EcoembesController {
             @RequestParam("startDate") LocalDate startDate,
             @RequestParam("endDate") LocalDate endDate) {
         try {
-            List<DumpsterUsageDTO> usageList = ecoembesService.getDumpsterUsage(dumpsterId, startDate, endDate);
+            // Get entity list from service
+            List<DumpsterUsageRecord> usageRecords = ecoembesService.getDumpsterUsage(dumpsterId, startDate, endDate);
+
+            // Convert entities to DTOs
+            List<DumpsterUsageDTO> usageList = usageRecords.stream()
+                .map(record -> new DumpsterUsageDTO(
+                    record.getDate(),
+                    record.getEstimatedContainers(),
+                    record.getFillLevel()
+                ))
+                .toList();
 
             if (usageList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -107,7 +139,20 @@ public class EcoembesController {
             @RequestParam("postalCode") String postalCode,
             @RequestParam("date") LocalDate date) {
         try {
-            List<DumpsterStatusDTO> statusList = ecoembesService.getDumpsterStatusByArea(postalCode, date);
+            // Get entities from service
+            List<Dumpster> dumpsters = ecoembesService.getDumpstersByArea(postalCode);
+
+            // Convert entities to DTOs with status for the specific date
+            List<DumpsterStatusDTO> statusList = dumpsters.stream()
+                .map(dumpster -> {
+                    var fillLevel = ecoembesService.getDumpsterFillLevelOnDate(dumpster, date);
+                    return new DumpsterStatusDTO(
+                        dumpster.getId(),
+                        dumpster.getLocation(),
+                        fillLevel
+                    );
+                })
+                .toList();
 
             if (statusList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -129,7 +174,16 @@ public class EcoembesController {
     public ResponseEntity<List<PlantCapacityDTO>> getRecyclingPlantCapacity(
             @RequestParam("date") LocalDate date) {
         try {
-            List<PlantCapacityDTO> capacities = ecoembesService.getRecyclingPlantCapacity(date);
+            // Get all plants from service
+            List<RecyclingPlant> plants = ecoembesService.getAllPlants();
+
+            // Convert entities to DTOs with calculated capacity
+            List<PlantCapacityDTO> capacities = plants.stream()
+                .map(plant -> {
+                    double availableCapacity = ecoembesService.calculatePlantCapacity(plant.getPlantId(), date);
+                    return new PlantCapacityDTO(plant.getPlantId(), availableCapacity);
+                })
+                .toList();
 
             if (capacities.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -151,7 +205,11 @@ public class EcoembesController {
     @PostMapping("/plants/assign")
     public ResponseEntity<String> assignDumpstersToPlant(@RequestBody AssignmentDTO assignmentDTO) {
         try {
-            ecoembesService.assignDumpstersToPlant(assignmentDTO);
+            // Convert DTO to entity parameters and call service
+            ecoembesService.assignDumpstersToPlant(
+                assignmentDTO.getPlantId(),
+                assignmentDTO.getDumpsterIds()
+            );
             return new ResponseEntity<>("Asignación completada", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
