@@ -9,6 +9,7 @@ import es.deusto.sd.ecoembes.dto.DumpsterUpdateDTO;
 import es.deusto.sd.ecoembes.dto.DumpsterUsageDTO;
 import es.deusto.sd.ecoembes.dto.NewDumpsterDTO;
 import es.deusto.sd.ecoembes.dto.PlantCapacityDTO;
+import es.deusto.sd.ecoembes.entity.Assignment;
 import es.deusto.sd.ecoembes.entity.Dumpster;
 import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;
 import es.deusto.sd.ecoembes.entity.RecyclingPlant;
@@ -77,11 +78,7 @@ public class EcoembesController {
             );
             
             // Convert entity back to DTO
-            DumpsterDTO responseDTO = new DumpsterDTO(
-                dumpster.getId(),
-                dumpster.getLocation(),
-                dumpster.getCapacity()
-            );
+            DumpsterDTO responseDTO = toDumpsterDTO(dumpster);
             
             return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
@@ -109,11 +106,7 @@ public class EcoembesController {
 
             // Convert entities to DTOs
             List<DumpsterUsageDTO> usageList = usageRecords.stream()
-                .map(record -> new DumpsterUsageDTO(
-                    record.getDate(),
-                    record.getEstimatedContainers(),
-                    record.getFillLevel()
-                ))
+                .map(this::toDumpsterUsageDTO)
                 .toList();
 
             if (usageList.isEmpty()) {
@@ -144,14 +137,7 @@ public class EcoembesController {
 
             // Convert entities to DTOs with status for the specific date
             List<DumpsterStatusDTO> statusList = dumpsters.stream()
-                .map(dumpster -> {
-                    var fillLevel = ecoembesService.getDumpsterFillLevelOnDate(dumpster, date);
-                    return new DumpsterStatusDTO(
-                        dumpster.getId(),
-                        dumpster.getLocation(),
-                        fillLevel
-                    );
-                })
+                .map(dumpster -> toDumpsterStatusDTO(dumpster, date))
                 .toList();
 
             if (statusList.isEmpty()) {
@@ -179,10 +165,7 @@ public class EcoembesController {
 
             // Convert entities to DTOs with calculated capacity
             List<PlantCapacityDTO> capacities = plants.stream()
-                .map(plant -> {
-                    double availableCapacity = ecoembesService.calculatePlantCapacity(plant.getPlantId(), date);
-                    return new PlantCapacityDTO(plant.getPlantId(), availableCapacity);
-                })
+                .map(plant -> toPlantCapacityDTO(plant, date))
                 .toList();
 
             if (capacities.isEmpty()) {
@@ -195,22 +178,53 @@ public class EcoembesController {
         }
     }
 
-    // POST: Assign dumpsters to recycling plants
-    @Operation(summary = "Assign dumpsters to recycling plants", description = "Assigns a list of dumpsters to a specified recycling plant", responses = {
-            @ApiResponse(responseCode = "200", description = "OK: Asignación completada"),
-            @ApiResponse(responseCode = "400", description = "Bad Request: Invalid data"),
-            @ApiResponse(responseCode = "404", description = "Not Found: Plant or dumpsters not found"),
+    // GET: Check single recycling plant capacity
+    @Operation(summary = "Check single recycling plant capacity", description = "Returns the capacity of a specific recycling plant for a given date", responses = {
+            @ApiResponse(responseCode = "200", description = "OK: Capacity retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Not Found: Plant not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PostMapping("/plants/assign")
-    public ResponseEntity<String> assignDumpstersToPlant(@RequestBody AssignmentDTO assignmentDTO) {
+    @GetMapping("/plants/{plantId}/capacity")
+    public ResponseEntity<PlantCapacityDTO> getSinglePlantCapacity(
+            @PathVariable("plantId") String plantId,
+            @RequestParam("date") LocalDate date) {
+        try {
+            // Get plant from service
+            RecyclingPlant plant = ecoembesService.getPlantById(plantId);
+
+            // Convert entity to DTO with calculated capacity
+            PlantCapacityDTO capacity = toPlantCapacityDTO(plant, date);
+
+            return new ResponseEntity<>(capacity, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // POST: Assign a dumpster to a recycling plant
+    @Operation(summary = "Assign a dumpster to a recycling plant", description = "Assigns a single dumpster to a specified recycling plant for a specific date", responses = {
+            @ApiResponse(responseCode = "201", description = "Created: Asignación completada"),
+            @ApiResponse(responseCode = "400", description = "Bad Request: Invalid data or dumpster already assigned"),
+            @ApiResponse(responseCode = "404", description = "Not Found: Plant, dumpster, or employee not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping("/assignments")
+    public ResponseEntity<AssignmentDTO> assignDumpsterToPlant(@RequestBody AssignmentDTO assignmentDTO) {
         try {
             // Convert DTO to entity parameters and call service
-            ecoembesService.assignDumpstersToPlant(
-                assignmentDTO.getPlantId(),
-                assignmentDTO.getDumpsterIds()
+            es.deusto.sd.ecoembes.entity.Assignment assignment = ecoembesService.assignDumpsterToPlant(
+                assignmentDTO.getDate(),
+                assignmentDTO.getDumpsterId(),
+                assignmentDTO.getEmployeeId(),
+                assignmentDTO.getPlantId()
             );
-            return new ResponseEntity<>("Asignación completada", HttpStatus.OK);
+            
+            // Convert entity back to DTO
+            AssignmentDTO responseDTO = toAssignmentDTO(assignment);
+            
+            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
@@ -218,5 +232,46 @@ public class EcoembesController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    // ===== DTO Conversion Methods =====
+
+    private DumpsterDTO toDumpsterDTO(Dumpster dumpster) {
+        return new DumpsterDTO(
+            dumpster.getId(),
+            dumpster.getLocation(),
+            dumpster.getCapacity()
+        );
+    }
+
+    private DumpsterUsageDTO toDumpsterUsageDTO(DumpsterUsageRecord record) {
+        return new DumpsterUsageDTO(
+            record.getDate(),
+            record.getEstimatedContainers(),
+            record.getFillLevel()
+        );
+    }
+
+    private DumpsterStatusDTO toDumpsterStatusDTO(Dumpster dumpster, LocalDate date) {
+        var fillLevel = ecoembesService.getDumpsterFillLevelOnDate(dumpster, date);
+        return new DumpsterStatusDTO(
+            dumpster.getId(),
+            dumpster.getLocation(),
+            fillLevel
+        );
+    }
+
+    private PlantCapacityDTO toPlantCapacityDTO(RecyclingPlant plant, LocalDate date) {
+        double availableCapacity = ecoembesService.calculatePlantCapacity(plant.getPlantId(), date);
+        return new PlantCapacityDTO(plant.getPlantId(), availableCapacity);
+    }
+
+    private AssignmentDTO toAssignmentDTO(Assignment assignment) {
+        return new AssignmentDTO(
+            assignment.getDate(),
+            assignment.getDumpsterId(),
+            assignment.getEmployeeId(),
+            assignment.getPlantId()
+        );
     }
 }

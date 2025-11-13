@@ -43,6 +43,12 @@ public class DataInitializer {
 			authService.addEmployee(emp2);
 			authService.addEmployee(emp3);
 			authService.addEmployee(emp4);
+			
+			// Add employees to EcoembesService as well for assignments
+			ecoembesService.addEmployee(emp1);
+			ecoembesService.addEmployee(emp2);
+			ecoembesService.addEmployee(emp3);
+			ecoembesService.addEmployee(emp4);
 			logger.info("✓ 4 Employees created successfully!");
 
 
@@ -162,13 +168,27 @@ public class DataInitializer {
 
 			// --- 4. Asignar contenedores a plantas de reciclaje ---
 			logger.info("Assigning dumpsters to recycling plants...");
-			java.util.List<String> plant1Dumpsters = java.util.Arrays.asList("D-BI-001", "D-BI-002", "D-BI-003");
-			java.util.List<String> plant2Dumpsters = java.util.Arrays.asList("D-SS-001", "D-SS-002", "D-SS-003");
-			java.util.List<String> plant3Dumpsters = java.util.Arrays.asList("D-VG-001", "D-VG-002", "D-VG-003", "D-BI-004");
-
-			ecoembesService.assignDumpstersToPlant("PLAST-BIO", plant1Dumpsters);
-			ecoembesService.assignDumpstersToPlant("CONT-GIP", plant2Dumpsters);
-			ecoembesService.assignDumpstersToPlant("ECO-ALAVA", plant3Dumpsters);
+			LocalDate today = LocalDate.now();
+			
+			// Assignments for today
+			ecoembesService.assignDumpsterToPlant(today, "D-BI-001", "E001", "PLAST-BIO");
+			ecoembesService.assignDumpsterToPlant(today, "D-BI-002", "E001", "PLAST-BIO");
+			ecoembesService.assignDumpsterToPlant(today, "D-BI-003", "E002", "PLAST-BIO");
+			ecoembesService.assignDumpsterToPlant(today, "D-SS-001", "E002", "CONT-GIP");
+			ecoembesService.assignDumpsterToPlant(today, "D-SS-002", "E003", "CONT-GIP");
+			ecoembesService.assignDumpsterToPlant(today, "D-SS-003", "E003", "CONT-GIP");
+			ecoembesService.assignDumpsterToPlant(today, "D-VG-001", "E004", "ECO-ALAVA");
+			ecoembesService.assignDumpsterToPlant(today, "D-VG-002", "E004", "ECO-ALAVA");
+			ecoembesService.assignDumpsterToPlant(today, "D-VG-003", "E001", "ECO-ALAVA");
+			ecoembesService.assignDumpsterToPlant(today, "D-BI-004", "E002", "ECO-ALAVA");
+			
+			// Some assignments for yesterday to have historical data
+			LocalDate yesterday = LocalDate.now().minusDays(1);
+			ecoembesService.assignDumpsterToPlant(yesterday, "D-BI-001", "E002", "PLAST-BIO");
+			ecoembesService.assignDumpsterToPlant(yesterday, "D-BI-002", "E001", "PLAST-BIO");
+			ecoembesService.assignDumpsterToPlant(yesterday, "D-SS-001", "E003", "CONT-GIP");
+			ecoembesService.assignDumpsterToPlant(yesterday, "D-VG-001", "E004", "ECO-ALAVA");
+			
 			logger.info("✓ Dumpsters assigned to plants successfully!");
 
 			// Resumen final
@@ -178,6 +198,7 @@ public class DataInitializer {
 			logger.info("✓ Employees: 4");
 			logger.info("✓ Recycling Plants: 3");
 			logger.info("✓ Dumpsters: 10");
+			logger.info("✓ Assignments: 14 (10 for today, 4 for yesterday)");
 			logger.info("✓ Cities covered: Bilbao, Donostia, Vitoria");
 			logger.info("✓ Postal codes: 48001, 48011, 20001, 20004, 01001, 01008");
 			logger.info("========================================\n");

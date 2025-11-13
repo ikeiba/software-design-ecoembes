@@ -14,8 +14,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import es.deusto.sd.ecoembes.entity.Assignment;
 import es.deusto.sd.ecoembes.entity.Dumpster;
 import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;
+import es.deusto.sd.ecoembes.entity.Employee;
 import es.deusto.sd.ecoembes.entity.FillLevel;
 import es.deusto.sd.ecoembes.entity.RecyclingPlant;
 
@@ -25,8 +27,9 @@ public class EcoembesService {
 	// In-memory repositories (simulation)
 	private final Map<String, Dumpster> dumpsterRepository = new HashMap<>();
 	private final Map<String, RecyclingPlant> plantRepository = new HashMap<>();
-	// plantId -> list of dumpsterIds
-	private final Map<String, List<String>> plantAssignments = new HashMap<>();
+	private final Map<String, Employee> employeeRepository = new HashMap<>();
+	private final Map<String, Assignment> assignmentRepository = new HashMap<>();
+	private int assignmentCounter = 1;
 
 	public EcoembesService() {
 		// Seed some demo plants
@@ -34,8 +37,6 @@ public class EcoembesService {
 		RecyclingPlant p2 = new RecyclingPlant("ContSocket", "ContSocket SA");
 		plantRepository.put(p1.getPlantId(), p1);
 		plantRepository.put(p2.getPlantId(), p2);
-		plantAssignments.put(p1.getPlantId(), new ArrayList<>());
-		plantAssignments.put(p2.getPlantId(), new ArrayList<>());
 	}
 
 	// -------------------------- Service methods (work only with entities) --------------------------
@@ -151,17 +152,38 @@ public class EcoembesService {
 	}
 
 	/**
-	 * Gets all dumpsters assigned to a plant
+	 * Gets a single recycling plant by ID
 	 */
-	public List<Dumpster> getAssignedDumpsters(String plantId) {
+	public RecyclingPlant getPlantById(String plantId) {
 		if (plantId == null || plantId.isBlank()) {
 			throw new IllegalArgumentException("Plant ID cannot be null or empty");
 		}
+		RecyclingPlant plant = plantRepository.get(plantId);
+		if (plant == null) {
+			throw new RuntimeException("Plant not found");
+		}
+		return plant;
+	}
 
-		List<String> assignedIds = plantAssignments.getOrDefault(plantId, new ArrayList<>());
-		return assignedIds.stream()
+	/**
+	 * Gets all dumpsters assigned to a plant on a specific date
+	 */
+	public List<Dumpster> getAssignedDumpsters(String plantId, LocalDate date) {
+		if (plantId == null || plantId.isBlank()) {
+			throw new IllegalArgumentException("Plant ID cannot be null or empty");
+		}
+		if (date == null) {
+			throw new IllegalArgumentException("Date cannot be null");
+		}
+
+		List<String> assignedDumpsterIds = assignmentRepository.values().stream()
+				.filter(a -> a.getPlantId().equals(plantId) && a.getDate().equals(date))
+				.map(Assignment::getDumpsterId)
+				.collect(Collectors.toList());
+
+		return assignedDumpsterIds.stream()
 				.map(dumpsterRepository::get)
-				.filter(d -> d != null)  // Filter out deleted dumpsters
+				.filter(d -> d != null)
 				.collect(Collectors.toList());
 	}
 
@@ -179,15 +201,14 @@ public class EcoembesService {
 			throw new RuntimeException("Plant not found");
 		}
 
-		List<String> assigned = plantAssignments.getOrDefault(plantId, new ArrayList<>());
+		List<Dumpster> assignedDumpsters = getAssignedDumpsters(plantId, date);
 
 		double totalCapacityTons = 0.0;
 		double occupiedTons = 0.0;
 
-		for (String did : assigned) {
-			Dumpster d = dumpsterRepository.get(did);
+		for (Dumpster d : assignedDumpsters) {
 			if (d == null) {
-				continue; // Skip dumpsters that don't exist
+				continue;
 			}
 			
 			double capacityKg = d.getCapacity();
@@ -226,33 +247,69 @@ public class EcoembesService {
 	}
 
 	/**
-	 * Assigns dumpsters to a recycling plant
+	 * Assigns a single dumpster to a recycling plant for a specific date
 	 */
-	public void assignDumpstersToPlant(String plantId, List<String> dumpsterIds) {
+	public Assignment assignDumpsterToPlant(LocalDate date, String dumpsterId, String employeeId, String plantId) {
+		if (date == null) {
+			throw new IllegalArgumentException("Date cannot be null");
+		}
+		if (dumpsterId == null || dumpsterId.isBlank()) {
+			throw new IllegalArgumentException("Dumpster ID cannot be null or empty");
+		}
+		if (employeeId == null || employeeId.isBlank()) {
+			throw new IllegalArgumentException("Employee ID cannot be null or empty");
+		}
 		if (plantId == null || plantId.isBlank()) {
-			throw new IllegalArgumentException("Invalid plant ID");
-		}
-		if (dumpsterIds == null || dumpsterIds.isEmpty()) {
-			throw new IllegalArgumentException("Dumpster IDs list cannot be null or empty");
+			throw new IllegalArgumentException("Plant ID cannot be null or empty");
 		}
 
+		if (!dumpsterRepository.containsKey(dumpsterId)) {
+			throw new RuntimeException("Dumpster not found: " + dumpsterId);
+		}
+		if (!employeeRepository.containsKey(employeeId)) {
+			throw new RuntimeException("Employee not found: " + employeeId);
+		}
 		if (!plantRepository.containsKey(plantId)) {
-			throw new RuntimeException("Plant not found");
+			throw new RuntimeException("Plant not found: " + plantId);
 		}
 
-		List<String> ids = plantAssignments.computeIfAbsent(plantId, k -> new ArrayList<>());
+		// Check if this dumpster is already assigned on this date
+		boolean alreadyAssigned = assignmentRepository.values().stream()
+				.anyMatch(a -> a.getDumpsterId().equals(dumpsterId) && a.getDate().equals(date));
 
-		for (String did : dumpsterIds) {
-			if (did == null || did.isBlank()) {
-				throw new IllegalArgumentException("Dumpster ID cannot be null or empty");
-			}
-			if (!dumpsterRepository.containsKey(did)) {
-				throw new RuntimeException("Dumpster not found: " + did);
-			}
-			if (!ids.contains(did)) {
-				ids.add(did);
-			}
+		if (alreadyAssigned) {
+			throw new IllegalArgumentException("Dumpster " + dumpsterId + " is already assigned for date " + date);
 		}
+
+		String assignmentId = "ASG-" + (assignmentCounter++);
+		Assignment assignment = new Assignment(assignmentId, date, dumpsterId, employeeId, plantId);
+		assignmentRepository.put(assignmentId, assignment);
+
+		return assignment;
+	}
+
+	/**
+	 * Gets all assignments for a specific date
+	 */
+	public List<Assignment> getAssignmentsByDate(LocalDate date) {
+		if (date == null) {
+			throw new IllegalArgumentException("Date cannot be null");
+		}
+		return assignmentRepository.values().stream()
+				.filter(a -> a.getDate().equals(date))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Gets all assignments for a specific plant
+	 */
+	public List<Assignment> getAssignmentsByPlant(String plantId) {
+		if (plantId == null || plantId.isBlank()) {
+			throw new IllegalArgumentException("Plant ID cannot be null or empty");
+		}
+		return assignmentRepository.values().stream()
+				.filter(a -> a.getPlantId().equals(plantId))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -279,7 +336,19 @@ public class EcoembesService {
 			throw new IllegalArgumentException("Plant ID cannot be null or empty");
 		}
 		plantRepository.putIfAbsent(plant.getPlantId(), plant);
-		plantAssignments.putIfAbsent(plant.getPlantId(), new ArrayList<>());
+	}
+
+	/**
+	 * Adds an employee to the repository (used by DataInitializer)
+	 */
+	public void addEmployee(Employee employee) {
+		if (employee == null) {
+			throw new IllegalArgumentException("Employee cannot be null");
+		}
+		if (employee.getEmployeeId() == null || employee.getEmployeeId().isBlank()) {
+			throw new IllegalArgumentException("Employee ID cannot be null or empty");
+		}
+		employeeRepository.putIfAbsent(employee.getEmployeeId(), employee);
 	}
 
 }
