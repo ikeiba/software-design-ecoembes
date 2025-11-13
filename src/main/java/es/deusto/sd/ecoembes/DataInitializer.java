@@ -34,7 +34,7 @@ public class DataInitializer {
 
 			// --- 1. Crear Empleados ---
 			logger.info("Creating employees...");
-			Employee emp1 = new Employee("E001", "Jon Ander García", "jon.garcia@ecoembes.com", "password123");
+			Employee emp1 = new Employee("E001", "Jon Ander Garcia", "jon.garcia@ecoembes.com", "password123");
 			Employee emp2 = new Employee("E002", "Maialen Etxebarria", "maialen.etx@ecoembes.com", "password456");
 			Employee emp3 = new Employee("E003", "Iker Mendoza", "iker.mendoza@ecoembes.com", "password789");
 			Employee emp4 = new Employee("E004", "Nerea Agirre", "nerea.agirre@ecoembes.com", "password321");
