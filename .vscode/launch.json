@@ -2,11 +2,11 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Spring Boot-AuctionsApplication<auctions-server-1-software-design-ecoembes>",
+            "name": "Spring Boot-EcoembesApplication<ecoembes-software-design-ecoembes>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "mainClass": "es.deusto.sd.ecoembes.AuctionsApplication",
-            "projectName": "auctions-server-1-software-design-ecoembes",
+            "mainClass": "es.deusto.sd.ecoembes.EcoembesApplication",
+            "projectName": "ecoembes-software-design-ecoembes",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }
