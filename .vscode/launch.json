@@ -2,11 +2,11 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Spring Boot-EcoembesApplication<ecoembes-software-design-ecoembes>",
+            "name": "Spring Boot-EcoembesApplication<software-design-ecoembes>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "mainClass": "es.deusto.sd.ecoembes.EcoembesApplication",
-            "projectName": "ecoembes-software-design-ecoembes",
+            "projectName": "software-design-ecoembes",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }
