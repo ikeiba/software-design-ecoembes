@@ -179,8 +179,8 @@ public class EcoembesService {
 			throw new RuntimeException("Plant not found");
 		}
 
-		return assignmentRepository.findAll().stream()
-				.filter(a -> a.getPlant().getId().equals(plantId) && a.getDate().equals(date))
+		// Use efficient repository query instead of loading all assignments
+		return assignmentRepository.findByPlantAndDate(plant.get(), date).stream()
 				.map(Assignment::getDumpster)
 				.filter(d -> d != null)
 				.collect(Collectors.toList());
@@ -277,11 +277,9 @@ public class EcoembesService {
 			throw new RuntimeException("Plant not found: " + plantId);
 		}
 
-		// Check if this dumpster is already assigned on this date
-		boolean alreadyAssigned = assignmentRepository.findAll().stream()
-				.anyMatch(a -> a.getDumpster().getId().equals(dumpsterId) && a.getDate().equals(date));
-
-		if (alreadyAssigned) {
+		// Check if this dumpster is already assigned on this date using efficient query
+		List<Assignment> existingAssignments = assignmentRepository.findByDumpsterAndDate(dumpster.get(), date);
+		if (!existingAssignments.isEmpty()) {
 			throw new IllegalArgumentException("Dumpster " + dumpsterId + " is already assigned for date " + date);
 		}
 
@@ -297,9 +295,8 @@ public class EcoembesService {
 		if (date == null) {
 			throw new IllegalArgumentException("Date cannot be null");
 		}
-		return assignmentRepository.findAll().stream()
-				.filter(a -> a.getDate().equals(date))
-				.collect(Collectors.toList());
+		// Use efficient repository query method
+		return assignmentRepository.findByDate(date);
 	}
 
 	/**
@@ -309,8 +306,11 @@ public class EcoembesService {
 		if (plantId == null) {
 			throw new IllegalArgumentException("Plant ID cannot be null");
 		}
-		return assignmentRepository.findAll().stream()
-				.filter(a -> a.getPlant() != null && a.getPlant().getId().equals(plantId))
-				.collect(Collectors.toList());
+		Optional<RecyclingPlant> plant = plantRepository.findById(plantId);
+		if (plant.isEmpty()) {
+			throw new RuntimeException("Plant not found: " + plantId);
+		}
+		// Use efficient repository query method
+		return assignmentRepository.findByPlant(plant.get());
 	}
 }
