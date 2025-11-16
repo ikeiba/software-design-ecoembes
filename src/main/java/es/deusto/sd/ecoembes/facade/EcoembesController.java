@@ -71,7 +71,6 @@ public class EcoembesController {
         try {
             // Convert DTO to entity parameters and call service
             Dumpster dumpster = ecoembesService.createDumpster(
-                newDumpsterDTO.getDumpsterId(),
                 newDumpsterDTO.getLocation(),
                 newDumpsterDTO.getPostalCode(),
                 newDumpsterDTO.getInitialCapacity()
@@ -97,7 +96,7 @@ public class EcoembesController {
     })
     @GetMapping("/dumpsters/{id}/usage")
     public ResponseEntity<List<DumpsterUsageDTO>> getDumpsterUsage(
-            @PathVariable("id") String dumpsterId,
+            @PathVariable("id") Long dumpsterId,
             @RequestParam("startDate") LocalDate startDate,
             @RequestParam("endDate") LocalDate endDate) {
         try {
@@ -186,7 +185,7 @@ public class EcoembesController {
     })
     @GetMapping("/plants/{plantId}/capacity")
     public ResponseEntity<PlantCapacityDTO> getSinglePlantCapacity(
-            @PathVariable("plantId") String plantId,
+            @PathVariable("plantId") Long plantId,
             @RequestParam("date") LocalDate date) {
         try {
             // Get plant from service
@@ -262,16 +261,16 @@ public class EcoembesController {
     }
 
     private PlantCapacityDTO toPlantCapacityDTO(RecyclingPlant plant, LocalDate date) {
-        double availableCapacity = ecoembesService.calculatePlantCapacity(plant.getPlantId(), date);
-        return new PlantCapacityDTO(plant.getPlantId(), availableCapacity);
+        double availableCapacity = ecoembesService.calculatePlantCapacity(plant.getId(), date);
+        return new PlantCapacityDTO(plant.getId(), availableCapacity);
     }
 
     private AssignmentDTO toAssignmentDTO(Assignment assignment) {
         return new AssignmentDTO(
             assignment.getDate(),
-            assignment.getDumpsterId(),
-            assignment.getEmployeeId(),
-            assignment.getPlantId()
+            assignment.getDumpster() != null ? assignment.getDumpster().getId() : null,
+            assignment.getEmployee() != null ? assignment.getEmployee().getId() : null,
+            assignment.getPlant() != null ? assignment.getPlant().getId() : null
         );
     }
 }

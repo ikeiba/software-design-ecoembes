@@ -3,7 +3,7 @@ package es.deusto.sd.ecoembes.dto;
 import es.deusto.sd.ecoembes.entity.FillLevel;
 
 public class DumpsterUpdateDTO {
-  private String dumpsterId;
+  private Long dumpsterId;
   private int estimatedContainers;
   private FillLevel fillLevel; // Using an Enum is better design
 
@@ -11,18 +11,18 @@ public class DumpsterUpdateDTO {
   public DumpsterUpdateDTO() {
   }
 
-  public DumpsterUpdateDTO(String dumpsterId, int estimatedContainers, FillLevel fillLevel) {
+  public DumpsterUpdateDTO(Long dumpsterId, int estimatedContainers, FillLevel fillLevel) {
     this.dumpsterId = dumpsterId;
     this.estimatedContainers = estimatedContainers;
     this.fillLevel = fillLevel;
   }
 
   // Getters and Setters
-  public String getDumpsterId() {
+  public Long getDumpsterId() {
     return dumpsterId;
   }
 
-  public void setDumpsterId(String dumpsterId) {
+  public void setDumpsterId(Long dumpsterId) {
     this.dumpsterId = dumpsterId;
   }
 

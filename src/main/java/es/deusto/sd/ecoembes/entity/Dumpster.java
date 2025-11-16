@@ -3,27 +3,50 @@ package es.deusto.sd.ecoembes.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+
+@Entity
 public class Dumpster {
 
-  private String id; // Unique identifier [cite: 73]
-  private String location; // Location (address) [cite: 73]
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id; // Unique identifier
+
+  @Column(nullable = false)
+  private String location; // Location (address)
+
+  @Column(nullable = false)
   private String postalCode; // Postal code
-  private double capacity; // Initial capacity [cite: 88]
+
+  @Column(nullable = false)
+  private double capacity; // Initial capacity
 
   // Current Status (simulated from sensor updates)
-  private int estimatedContainers; // [cite: 74]
-  private FillLevel fillLevel; // [cite: 75]
+  @Column(nullable = false)
+  private int estimatedContainers;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private FillLevel fillLevel;
 
   // Historical data to simulate usage queries
+  @OneToMany(mappedBy = "dumpster", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
   private List<DumpsterUsageRecord> usageHistory;
 
-  // Constructors
   public Dumpster() {
     this.usageHistory = new ArrayList<>();
   }
 
-  public Dumpster(String id, String location, String postalCode, double capacity) {
-    this.id = id;
+  public Dumpster(String location, String postalCode, double capacity) {
     this.location = location;
     this.postalCode = postalCode;
     this.capacity = capacity;
@@ -36,16 +59,17 @@ public class Dumpster {
   public void updateStatus(int newContainerCount, FillLevel newFillLevel) {
     this.estimatedContainers = newContainerCount;
     this.fillLevel = newFillLevel;
-    // Add to history
-    this.usageHistory.add(new DumpsterUsageRecord(java.time.LocalDate.now(), newContainerCount, newFillLevel));
+    // Add to history with back-reference
+    var record = new DumpsterUsageRecord(java.time.LocalDate.now(), newContainerCount, newFillLevel);
+    record.setDumpster(this);
+    this.usageHistory.add(record);
   }
 
-  // Getters and Setters
-  public String getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId(Long id) {
     this.id = id;
   }
 

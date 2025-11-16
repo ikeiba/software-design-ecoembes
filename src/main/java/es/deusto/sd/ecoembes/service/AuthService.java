@@ -18,7 +18,7 @@ import java.util.Optional;
 @Service
 public class AuthService {
 
-        // Simulating an employee repository
+        // Simulating an employee repository (indexed by email for login)
         private static Map<String, Employee> userRepository = new HashMap<>();
 
         // Storage to keep the session of the employees that are logged in

@@ -4,15 +4,15 @@ import java.time.LocalDate;
 
 public class AssignmentDTO {
   private LocalDate date;
-  private String dumpsterId;
-  private String employeeId;
-  private String plantId;
+  private Long dumpsterId;
+  private Long employeeId;
+  private Long plantId;
 
   // Constructors
   public AssignmentDTO() {
   }
 
-  public AssignmentDTO(LocalDate date, String dumpsterId, String employeeId, String plantId) {
+  public AssignmentDTO(LocalDate date, Long dumpsterId, Long employeeId, Long plantId) {
     this.date = date;
     this.dumpsterId = dumpsterId;
     this.employeeId = employeeId;
@@ -28,27 +28,27 @@ public class AssignmentDTO {
     this.date = date;
   }
 
-  public String getDumpsterId() {
+  public Long getDumpsterId() {
     return dumpsterId;
   }
 
-  public void setDumpsterId(String dumpsterId) {
+  public void setDumpsterId(Long dumpsterId) {
     this.dumpsterId = dumpsterId;
   }
 
-  public String getEmployeeId() {
+  public Long getEmployeeId() {
     return employeeId;
   }
 
-  public void setEmployeeId(String employeeId) {
+  public void setEmployeeId(Long employeeId) {
     this.employeeId = employeeId;
   }
 
-  public String getPlantId() {
+  public Long getPlantId() {
     return plantId;
   }
 
-  public void setPlantId(String plantId) {
+  public void setPlantId(Long plantId) {
     this.plantId = plantId;
   }
 }

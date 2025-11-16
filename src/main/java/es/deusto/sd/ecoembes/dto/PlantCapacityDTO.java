@@ -1,24 +1,24 @@
 package es.deusto.sd.ecoembes.dto;
 
 public class PlantCapacityDTO {
-  private String plantId; // e.g., "PlasSB", "ContSocket"
+  private Long plantId;
   private double availableCapacityTons;
 
   // Constructors
   public PlantCapacityDTO() {
   }
 
-  public PlantCapacityDTO(String plantId, double availableCapacityTons) {
+  public PlantCapacityDTO(Long plantId, double availableCapacityTons) {
     this.plantId = plantId;
     this.availableCapacityTons = availableCapacityTons;
   }
 
   // Getters and Setters
-  public String getPlantId() {
+  public Long getPlantId() {
     return plantId;
   }
 
-  public void setPlantId(String plantId) {
+  public void setPlantId(Long plantId) {
     this.plantId = plantId;
   }
 

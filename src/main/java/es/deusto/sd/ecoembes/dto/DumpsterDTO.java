@@ -1,7 +1,7 @@
 package es.deusto.sd.ecoembes.dto;
 
 public class DumpsterDTO {
-  private String dumpsterId;
+  private Long dumpsterId;
   private String location;
   private double capacity;
 
@@ -9,18 +9,18 @@ public class DumpsterDTO {
   public DumpsterDTO() {
   }
 
-  public DumpsterDTO(String dumpsterId, String location, double capacity) {
+  public DumpsterDTO(Long dumpsterId, String location, double capacity) {
     this.dumpsterId = dumpsterId;
     this.location = location;
     this.capacity = capacity;
   }
 
   // Getters and Setters
-  public String getDumpsterId() {
+  public Long getDumpsterId() {
     return dumpsterId;
   }
 
-  public void setDumpsterId(String dumpsterId) {
+  public void setDumpsterId(Long dumpsterId) {
     this.dumpsterId = dumpsterId;
   }
 

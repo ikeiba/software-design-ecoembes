@@ -1,26 +1,34 @@
 package es.deusto.sd.ecoembes.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
 public class RecyclingPlant {
 
-  private String plantId; // e.g., "PlasSB", "ContSocket"
-  private String name; // e.g., "PlasSB Ltd."
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-  // Constructors
+  @Column(nullable = false)
+  private String name;
+
   public RecyclingPlant() {
   }
 
-  public RecyclingPlant(String plantId, String name) {
-    this.plantId = plantId;
+  public RecyclingPlant(String name) {
     this.name = name;
   }
 
-  // Getters and Setters
-  public String getPlantId() {
-    return plantId;
+  public Long getId() {
+    return id;
   }
 
-  public void setPlantId(String plantId) {
-    this.plantId = plantId;
+  public void setId(Long id) {
+    this.id = id;
   }
 
   public String getName() {

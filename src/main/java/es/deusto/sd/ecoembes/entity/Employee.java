@@ -1,30 +1,42 @@
 package es.deusto.sd.ecoembes.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
 public class Employee {
 
-  private String employeeId;
-  private String name;
-  private String email;
-  private String password; // For simulation. In a real app, this would be a hash.
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-  // Constructors
+  @Column(nullable = false)
+  private String name;
+
+  @Column(nullable = false, unique = true)
+  private String email;
+
+  @Column(nullable = false)
+  private String password; // In real apps, store a hash
+
   public Employee() {
   }
 
-  public Employee(String employeeId, String name, String email, String password) {
-    this.employeeId = employeeId;
+  public Employee(String name, String email, String password) {
     this.name = name;
     this.email = email;
     this.password = password;
   }
 
-  // Getters and Setters
-  public String getEmployeeId() {
-    return employeeId;
+  public Long getId() {
+    return id;
   }
 
-  public void setEmployeeId(String employeeId) {
-    this.employeeId = employeeId;
+  public void setId(Long id) {
+    this.id = id;
   }
 
   public String getName() {
@@ -51,8 +63,7 @@ public class Employee {
     this.password = password;
   }
 
-  // Helper method for login check
   public boolean checkPassword(String password) {
-    return this.password.equals(password);
+    return this.password != null && this.password.equals(password);
   }
 }

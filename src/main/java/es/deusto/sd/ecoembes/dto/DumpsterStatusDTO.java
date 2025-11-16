@@ -3,7 +3,7 @@ package es.deusto.sd.ecoembes.dto;
 import es.deusto.sd.ecoembes.entity.FillLevel;
 
 public class DumpsterStatusDTO {
-  private String dumpsterId;
+  private Long dumpsterId;
   private String location;
   private FillLevel currentStatus;
 
@@ -11,18 +11,18 @@ public class DumpsterStatusDTO {
   public DumpsterStatusDTO() {
   }
 
-  public DumpsterStatusDTO(String dumpsterId, String location, FillLevel currentStatus) {
+  public DumpsterStatusDTO(Long dumpsterId, String location, FillLevel currentStatus) {
     this.dumpsterId = dumpsterId;
     this.location = location;
     this.currentStatus = currentStatus;
   }
 
   // Getters and Setters
-  public String getDumpsterId() {
+  public Long getDumpsterId() {
     return dumpsterId;
   }
 
-  public void setDumpsterId(String dumpsterId) {
+  public void setDumpsterId(Long dumpsterId) {
     this.dumpsterId = dumpsterId;
   }
 

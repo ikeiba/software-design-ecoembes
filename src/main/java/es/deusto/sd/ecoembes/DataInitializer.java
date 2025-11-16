@@ -5,23 +5,29 @@
  */
 package es.deusto.sd.ecoembes;
 
-import java.time.LocalDate; // Importante para las fechas de historial
+import java.time.LocalDate;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.Transactional;
 
 // Importa las entidades de RECICLAJE
-import es.deusto.sd.ecoembes.entity.Employee;
-import es.deusto.sd.ecoembes.entity.RecyclingPlant;
+import es.deusto.sd.ecoembes.entity.Assignment;
 import es.deusto.sd.ecoembes.entity.Dumpster;
 import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;
+import es.deusto.sd.ecoembes.entity.Employee;
 import es.deusto.sd.ecoembes.entity.FillLevel;
+import es.deusto.sd.ecoembes.entity.RecyclingPlant;
 
-// Importa los servicios (¡necesitarán ser actualizados!)
-import es.deusto.sd.ecoembes.service.AuthService;
-import es.deusto.sd.ecoembes.service.EcoembesService;
+// Importa los repositorios
+import es.deusto.sd.ecoembes.dao.AssignmentRepository;
+import es.deusto.sd.ecoembes.dao.DumpsterRepository;
+import es.deusto.sd.ecoembes.dao.EmployeeRepository;
+import es.deusto.sd.ecoembes.dao.RecyclingPlantRepository;
 
 @Configuration
 public class DataInitializer {
@@ -29,167 +35,160 @@ public class DataInitializer {
 	private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
 	@Bean
-	CommandLineRunner initData(EcoembesService ecoembesService, AuthService authService) {
+	@Transactional
+	CommandLineRunner initData(EmployeeRepository employeeRepository, 
+								RecyclingPlantRepository plantRepository,
+								DumpsterRepository dumpsterRepository,
+								AssignmentRepository assignmentRepository) {
 		return args -> {
+			// Database is already initialized
+			if (employeeRepository.count() > 0) {
+				logger.info("Database already initialized, skipping data creation.");
+				return;
+			}
 
 			// --- 1. Crear Empleados ---
 			logger.info("Creating employees...");
-			Employee emp1 = new Employee("E001", "Jon Ander Garcia", "jon.garcia@ecoembes.com", "password123");
-			Employee emp2 = new Employee("E002", "Maialen Etxebarria", "maialen.etx@ecoembes.com", "password456");
-			Employee emp3 = new Employee("E003", "Iker Ibarrola", "iker.mendoza@ecoembes.com", "password789");
-			Employee emp4 = new Employee("E004", "Nerea Agirre", "nerea.agirre@ecoembes.com", "password321");
+			Employee emp1 = new Employee("Jon Ander Garcia", "jon.garcia@ecoembes.com", "password123");
+			Employee emp2 = new Employee("Maialen Etxebarria", "maialen.etx@ecoembes.com", "password456");
+			Employee emp3 = new Employee("Iker Ibarrola", "iker.mendoza@ecoembes.com", "password789");
+			Employee emp4 = new Employee("Nerea Agirre", "nerea.agirre@ecoembes.com", "password321");
 			
-			authService.addEmployee(emp1);
-			authService.addEmployee(emp2);
-			authService.addEmployee(emp3);
-			authService.addEmployee(emp4);
-			
-			// Add employees to EcoembesService as well for assignments
-			ecoembesService.addEmployee(emp1);
-			ecoembesService.addEmployee(emp2);
-			ecoembesService.addEmployee(emp3);
-			ecoembesService.addEmployee(emp4);
-			logger.info("✓ 4 Employees created successfully!");
+			// Save employees - IDs will be auto-generated
+			employeeRepository.saveAll(List.of(emp1, emp2, emp3, emp4));
+			logger.info("✓ 4 Employees saved!");
 
 
 			// --- 2. Crear Plantas de Reciclaje ---
 			logger.info("Creating recycling plants...");
-			RecyclingPlant plant1 = new RecyclingPlant("PLAST-BIO", "Plásticos Bizkaia S.A.");
-			RecyclingPlant plant2 = new RecyclingPlant("CONT-GIP", "Contenedores Gipuzkoa");
-			RecyclingPlant plant3 = new RecyclingPlant("ECO-ALAVA", "EcoReciclaje Álava");
+			RecyclingPlant plant1 = new RecyclingPlant("Plásticos Bizkaia S.A.");
+			RecyclingPlant plant2 = new RecyclingPlant("Contenedores Gipuzkoa");
+			RecyclingPlant plant3 = new RecyclingPlant("EcoReciclaje Álava");
 
-			ecoembesService.addPlant(plant1);
-			ecoembesService.addPlant(plant2);
-			ecoembesService.addPlant(plant3);
-			logger.info("✓ 3 Recycling Plants created successfully!");
+			// Save plants - IDs will be auto-generated
+			plantRepository.saveAll(List.of(plant1, plant2, plant3));
+			logger.info("✓ 3 Recycling Plants saved!");
 
 
 			// --- 3. Crear Contenedores (Dumpsters) con historial completo ---
 			logger.info("Creating dumpsters with historical data...");
 			
 			// ========== BILBAO (Código Postal 48001 - Centro) ==========
-			Dumpster d1 = new Dumpster("D-BI-001", "Plaza Moyua, Bilbao", "48001", 3800.0);
-			d1.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(7), 800, FillLevel.GREEN));
-			d1.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(6), 950, FillLevel.GREEN));
-			d1.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(5), 1100, FillLevel.GREEN));
-			d1.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(4), 1350, FillLevel.GREEN));
-			d1.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(3), 1550, FillLevel.ORANGE));
-			d1.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 1800, FillLevel.ORANGE));
-			d1.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 2100, FillLevel.ORANGE));
+			Dumpster d1 = new Dumpster("Plaza Moyua, Bilbao", "48001", 3800.0);
+			addUsageRecord(d1, LocalDate.now().minusDays(7), 800, FillLevel.GREEN);
+			addUsageRecord(d1, LocalDate.now().minusDays(6), 950, FillLevel.GREEN);
+			addUsageRecord(d1, LocalDate.now().minusDays(5), 1100, FillLevel.GREEN);
+			addUsageRecord(d1, LocalDate.now().minusDays(4), 1350, FillLevel.GREEN);
+			addUsageRecord(d1, LocalDate.now().minusDays(3), 1550, FillLevel.ORANGE);
+			addUsageRecord(d1, LocalDate.now().minusDays(2), 1800, FillLevel.ORANGE);
+			addUsageRecord(d1, LocalDate.now().minusDays(1), 2100, FillLevel.ORANGE);
 			d1.updateStatus(2350, FillLevel.ORANGE);
 
-			Dumpster d2 = new Dumpster("D-BI-002", "Calle Licenciado Poza, Bilbao", "48001", 3800.0);
-			d2.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(5), 500, FillLevel.GREEN));
-			d2.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(4), 720, FillLevel.GREEN));
-			d2.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(3), 890, FillLevel.GREEN));
-			d2.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 1050, FillLevel.GREEN));
-			d2.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 1200, FillLevel.GREEN));
+			Dumpster d2 = new Dumpster("Calle Licenciado Poza, Bilbao", "48001", 3800.0);
+			addUsageRecord(d2, LocalDate.now().minusDays(5), 500, FillLevel.GREEN);
+			addUsageRecord(d2, LocalDate.now().minusDays(4), 720, FillLevel.GREEN);
+			addUsageRecord(d2, LocalDate.now().minusDays(3), 890, FillLevel.GREEN);
+			addUsageRecord(d2, LocalDate.now().minusDays(2), 1050, FillLevel.GREEN);
+			addUsageRecord(d2, LocalDate.now().minusDays(1), 1200, FillLevel.GREEN);
 			d2.updateStatus(1380, FillLevel.GREEN);
 
 			// ========== BILBAO (Código Postal 48011 - Indautxu) ==========
-			Dumpster d3 = new Dumpster("D-BI-003", "Gran Vía 50, Bilbao", "48011", 4000.0);
-			d3.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(6), 600, FillLevel.GREEN));
-			d3.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(5), 850, FillLevel.GREEN));
-			d3.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(4), 1100, FillLevel.GREEN));
-			d3.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(3), 1400, FillLevel.GREEN));
-			d3.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 1650, FillLevel.ORANGE));
-			d3.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 1900, FillLevel.ORANGE));
+			Dumpster d3 = new Dumpster("Gran Vía 50, Bilbao", "48011", 4000.0);
+			addUsageRecord(d3, LocalDate.now().minusDays(6), 600, FillLevel.GREEN);
+			addUsageRecord(d3, LocalDate.now().minusDays(5), 850, FillLevel.GREEN);
+			addUsageRecord(d3, LocalDate.now().minusDays(4), 1100, FillLevel.GREEN);
+			addUsageRecord(d3, LocalDate.now().minusDays(3), 1400, FillLevel.GREEN);
+			addUsageRecord(d3, LocalDate.now().minusDays(2), 1650, FillLevel.ORANGE);
+			addUsageRecord(d3, LocalDate.now().minusDays(1), 1900, FillLevel.ORANGE);
 			d3.updateStatus(2150, FillLevel.ORANGE);
 
-			Dumpster d4 = new Dumpster("D-BI-004", "Calle Ercilla, Bilbao", "48011", 3500.0);
-			d4.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(3), 2800, FillLevel.RED));
-			d4.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 3100, FillLevel.RED));
-			d4.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 3300, FillLevel.RED));
+			Dumpster d4 = new Dumpster("Calle Ercilla, Bilbao", "48011", 3500.0);
+			addUsageRecord(d4, LocalDate.now().minusDays(3), 2800, FillLevel.RED);
+			addUsageRecord(d4, LocalDate.now().minusDays(2), 3100, FillLevel.RED);
+			addUsageRecord(d4, LocalDate.now().minusDays(1), 3300, FillLevel.RED);
 			d4.updateStatus(3450, FillLevel.RED);
 
 			// ========== DONOSTIA-SAN SEBASTIÁN (Código Postal 20001 - Centro) ==========
-			Dumpster d5 = new Dumpster("D-SS-001", "Playa de la Concha, Donostia", "20001", 4200.0);
-			d5.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(7), 2500, FillLevel.ORANGE));
-			d5.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(6), 2800, FillLevel.ORANGE));
-			d5.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(5), 3100, FillLevel.ORANGE));
-			d5.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(4), 3400, FillLevel.RED));
-			d5.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(3), 3700, FillLevel.RED));
-			d5.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 3900, FillLevel.RED));
-			d5.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 4050, FillLevel.RED));
+			Dumpster d5 = new Dumpster("Playa de la Concha, Donostia", "20001", 4200.0);
+			addUsageRecord(d5, LocalDate.now().minusDays(7), 2500, FillLevel.ORANGE);
+			addUsageRecord(d5, LocalDate.now().minusDays(6), 2800, FillLevel.ORANGE);
+			addUsageRecord(d5, LocalDate.now().minusDays(5), 3100, FillLevel.ORANGE);
+			addUsageRecord(d5, LocalDate.now().minusDays(4), 3400, FillLevel.RED);
+			addUsageRecord(d5, LocalDate.now().minusDays(3), 3700, FillLevel.RED);
+			addUsageRecord(d5, LocalDate.now().minusDays(2), 3900, FillLevel.RED);
+			addUsageRecord(d5, LocalDate.now().minusDays(1), 4050, FillLevel.RED);
 			d5.updateStatus(4180, FillLevel.RED);
 
-			Dumpster d6 = new Dumpster("D-SS-002", "Boulevard de Donostia", "20001", 3900.0);
-			d6.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(4), 1200, FillLevel.GREEN));
-			d6.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(3), 1500, FillLevel.GREEN));
-			d6.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 1800, FillLevel.ORANGE));
-			d6.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 2100, FillLevel.ORANGE));
+			Dumpster d6 = new Dumpster("Boulevard de Donostia", "20001", 3900.0);
+			addUsageRecord(d6, LocalDate.now().minusDays(4), 1200, FillLevel.GREEN);
+			addUsageRecord(d6, LocalDate.now().minusDays(3), 1500, FillLevel.GREEN);
+			addUsageRecord(d6, LocalDate.now().minusDays(2), 1800, FillLevel.ORANGE);
+			addUsageRecord(d6, LocalDate.now().minusDays(1), 2100, FillLevel.ORANGE);
 			d6.updateStatus(2400, FillLevel.ORANGE);
 
 			// ========== DONOSTIA-SAN SEBASTIÁN (Código Postal 20004 - Gros) ==========
-			Dumpster d7 = new Dumpster("D-SS-003", "Calle Zabaleta, Donostia", "20004", 3600.0);
-			d7.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(5), 800, FillLevel.GREEN));
-			d7.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(4), 1100, FillLevel.GREEN));
-			d7.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(3), 1400, FillLevel.GREEN));
-			d7.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 1700, FillLevel.ORANGE));
-			d7.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 2000, FillLevel.ORANGE));
+			Dumpster d7 = new Dumpster("Calle Zabaleta, Donostia", "20004", 3600.0);
+			addUsageRecord(d7, LocalDate.now().minusDays(5), 800, FillLevel.GREEN);
+			addUsageRecord(d7, LocalDate.now().minusDays(4), 1100, FillLevel.GREEN);
+			addUsageRecord(d7, LocalDate.now().minusDays(3), 1400, FillLevel.GREEN);
+			addUsageRecord(d7, LocalDate.now().minusDays(2), 1700, FillLevel.ORANGE);
+			addUsageRecord(d7, LocalDate.now().minusDays(1), 2000, FillLevel.ORANGE);
 			d7.updateStatus(2300, FillLevel.ORANGE);
 
 			// ========== VITORIA-GASTEIZ (Código Postal 01001 - Centro) ==========
-			Dumpster d8 = new Dumpster("D-VG-001", "Plaza de la Virgen Blanca, Vitoria", "01001", 4100.0);
-			d8.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(6), 1000, FillLevel.GREEN));
-			d8.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(5), 1300, FillLevel.GREEN));
-			d8.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(4), 1600, FillLevel.GREEN));
-			d8.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(3), 1900, FillLevel.ORANGE));
-			d8.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 2200, FillLevel.ORANGE));
-			d8.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 2500, FillLevel.ORANGE));
+			Dumpster d8 = new Dumpster("Plaza de la Virgen Blanca, Vitoria", "01001", 4100.0);
+			addUsageRecord(d8, LocalDate.now().minusDays(6), 1000, FillLevel.GREEN);
+			addUsageRecord(d8, LocalDate.now().minusDays(5), 1300, FillLevel.GREEN);
+			addUsageRecord(d8, LocalDate.now().minusDays(4), 1600, FillLevel.GREEN);
+			addUsageRecord(d8, LocalDate.now().minusDays(3), 1900, FillLevel.ORANGE);
+			addUsageRecord(d8, LocalDate.now().minusDays(2), 2200, FillLevel.ORANGE);
+			addUsageRecord(d8, LocalDate.now().minusDays(1), 2500, FillLevel.ORANGE);
 			d8.updateStatus(2800, FillLevel.ORANGE);
 
-			Dumpster d9 = new Dumpster("D-VG-002", "Calle Dato, Vitoria", "01001", 3700.0);
-			d9.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(4), 500, FillLevel.GREEN));
-			d9.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(3), 750, FillLevel.GREEN));
-			d9.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 1000, FillLevel.GREEN));
-			d9.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 1250, FillLevel.GREEN));
+			Dumpster d9 = new Dumpster("Calle Dato, Vitoria", "01001", 3700.0);
+			addUsageRecord(d9, LocalDate.now().minusDays(4), 500, FillLevel.GREEN);
+			addUsageRecord(d9, LocalDate.now().minusDays(3), 750, FillLevel.GREEN);
+			addUsageRecord(d9, LocalDate.now().minusDays(2), 1000, FillLevel.GREEN);
+			addUsageRecord(d9, LocalDate.now().minusDays(1), 1250, FillLevel.GREEN);
 			d9.updateStatus(1500, FillLevel.GREEN);
 
 			// ========== VITORIA-GASTEIZ (Código Postal 01008 - Lakua) ==========
-			Dumpster d10 = new Dumpster("D-VG-003", "Avenida Gasteiz, Vitoria", "01008", 3800.0);
-			d10.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(3), 2900, FillLevel.RED));
-			d10.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(2), 3200, FillLevel.RED));
-			d10.getUsageHistory().add(new DumpsterUsageRecord(LocalDate.now().minusDays(1), 3500, FillLevel.RED));
+			Dumpster d10 = new Dumpster("Avenida Gasteiz, Vitoria", "01008", 3800.0);
+			addUsageRecord(d10, LocalDate.now().minusDays(3), 2900, FillLevel.RED);
+			addUsageRecord(d10, LocalDate.now().minusDays(2), 3200, FillLevel.RED);
+			addUsageRecord(d10, LocalDate.now().minusDays(1), 3500, FillLevel.RED);
 			d10.updateStatus(3700, FillLevel.RED);
 
-			// Añadir todos los contenedores al repositorio
-			ecoembesService.addDumpster(d1);
-			ecoembesService.addDumpster(d2);
-			ecoembesService.addDumpster(d3);
-			ecoembesService.addDumpster(d4);
-			ecoembesService.addDumpster(d5);
-			ecoembesService.addDumpster(d6);
-			ecoembesService.addDumpster(d7);
-			ecoembesService.addDumpster(d8);
-			ecoembesService.addDumpster(d9);
-			ecoembesService.addDumpster(d10);
-			logger.info("✓ 10 Dumpsters created with complete historical data!");
+			// Save all dumpsters - usage history will be persisted due to CascadeType.ALL
+			dumpsterRepository.saveAll(List.of(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10));
+			logger.info("✓ 10 Dumpsters saved with complete historical data!");
 
 			// --- 4. Asignar contenedores a plantas de reciclaje ---
 			logger.info("Assigning dumpsters to recycling plants...");
 			LocalDate today = LocalDate.now();
 			
 			// Assignments for today
-			ecoembesService.assignDumpsterToPlant(today, "D-BI-001", "E001", "PLAST-BIO");
-			ecoembesService.assignDumpsterToPlant(today, "D-BI-002", "E001", "PLAST-BIO");
-			ecoembesService.assignDumpsterToPlant(today, "D-BI-003", "E002", "PLAST-BIO");
-			ecoembesService.assignDumpsterToPlant(today, "D-SS-001", "E002", "CONT-GIP");
-			ecoembesService.assignDumpsterToPlant(today, "D-SS-002", "E003", "CONT-GIP");
-			ecoembesService.assignDumpsterToPlant(today, "D-SS-003", "E003", "CONT-GIP");
-			ecoembesService.assignDumpsterToPlant(today, "D-VG-001", "E004", "ECO-ALAVA");
-			ecoembesService.assignDumpsterToPlant(today, "D-VG-002", "E004", "ECO-ALAVA");
-			ecoembesService.assignDumpsterToPlant(today, "D-VG-003", "E001", "ECO-ALAVA");
-			ecoembesService.assignDumpsterToPlant(today, "D-BI-004", "E002", "ECO-ALAVA");
+			Assignment a1 = new Assignment(today, d1, emp1, plant1);
+			Assignment a2 = new Assignment(today, d2, emp1, plant1);
+			Assignment a3 = new Assignment(today, d3, emp2, plant1);
+			Assignment a4 = new Assignment(today, d5, emp2, plant2);
+			Assignment a5 = new Assignment(today, d6, emp3, plant2);
+			Assignment a6 = new Assignment(today, d7, emp3, plant2);
+			Assignment a7 = new Assignment(today, d8, emp4, plant3);
+			Assignment a8 = new Assignment(today, d9, emp4, plant3);
+			Assignment a9 = new Assignment(today, d10, emp1, plant3);
+			Assignment a10 = new Assignment(today, d4, emp2, plant3);
 			
 			// Some assignments for yesterday to have historical data
 			LocalDate yesterday = LocalDate.now().minusDays(1);
-			ecoembesService.assignDumpsterToPlant(yesterday, "D-BI-001", "E002", "PLAST-BIO");
-			ecoembesService.assignDumpsterToPlant(yesterday, "D-BI-002", "E001", "PLAST-BIO");
-			ecoembesService.assignDumpsterToPlant(yesterday, "D-SS-001", "E003", "CONT-GIP");
-			ecoembesService.assignDumpsterToPlant(yesterday, "D-VG-001", "E004", "ECO-ALAVA");
+			Assignment a11 = new Assignment(yesterday, d1, emp2, plant1);
+			Assignment a12 = new Assignment(yesterday, d2, emp1, plant1);
+			Assignment a13 = new Assignment(yesterday, d5, emp3, plant2);
+			Assignment a14 = new Assignment(yesterday, d8, emp4, plant3);
 			
-			logger.info("✓ Dumpsters assigned to plants successfully!");
+			// Save all assignments
+			assignmentRepository.saveAll(List.of(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14));
+			logger.info("✓ Assignments saved successfully!");
 
 			// Resumen final
 			logger.info("\n========================================");
@@ -203,5 +202,12 @@ public class DataInitializer {
 			logger.info("✓ Postal codes: 48001, 48011, 20001, 20004, 01001, 01008");
 			logger.info("========================================\n");
 		};
+	}
+
+	// Helper method to add usage records with proper bidirectional relationship
+	private static void addUsageRecord(Dumpster dumpster, LocalDate date, int containers, FillLevel level) {
+		DumpsterUsageRecord record = new DumpsterUsageRecord(date, containers, level);
+		record.setDumpster(dumpster);
+		dumpster.getUsageHistory().add(record);
 	}
 }
