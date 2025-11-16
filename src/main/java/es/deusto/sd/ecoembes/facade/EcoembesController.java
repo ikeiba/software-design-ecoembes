@@ -1,5 +1,7 @@
 package es.deusto.sd.ecoembes.facade;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import es.deusto.sd.ecoembes.dto.AssignmentDTO;
@@ -14,6 +16,7 @@ import es.deusto.sd.ecoembes.entity.Dumpster;
 import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;
 import es.deusto.sd.ecoembes.entity.RecyclingPlant;
 import es.deusto.sd.ecoembes.service.EcoembesService;
+import es.deusto.sd.ecoembes.service.AuthService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -29,12 +32,14 @@ import java.util.List;
 @Tag(name = "Ecoembes Controller", description = "Operations related to dumpsters and recycling plants")
 public class EcoembesController {
 
+    private static final Logger logger = LoggerFactory.getLogger(EcoembesController.class);
 
     //! AQUI HAY QUE PONER VARIOS SERVICES PORQUE CADA UNO VA A GESTIONAR UNA PARTE DIFERENTE
     private final EcoembesService ecoembesService;
-
-    public EcoembesController(EcoembesService ecoembesService) {
+    private final AuthService authService;
+    public EcoembesController(EcoembesService ecoembesService, AuthService authService) {
         this.ecoembesService = ecoembesService;
+        this.authService = authService;
     }
 
     // PUT: Update info (Sensor)
@@ -205,18 +210,30 @@ public class EcoembesController {
     // POST: Assign a dumpster to a recycling plant
     @Operation(summary = "Assign a dumpster to a recycling plant", description = "Assigns a single dumpster to a specified recycling plant for a specific date", responses = {
             @ApiResponse(responseCode = "201", description = "Created: Asignación completada"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid or missing token"),
             @ApiResponse(responseCode = "400", description = "Bad Request: Invalid data or dumpster already assigned"),
             @ApiResponse(responseCode = "404", description = "Not Found: Plant, dumpster, or employee not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/assignments")
-    public ResponseEntity<AssignmentDTO> assignDumpsterToPlant(@RequestBody AssignmentDTO assignmentDTO) {
+    public ResponseEntity<AssignmentDTO> assignDumpsterToPlant(
+            @RequestBody AssignmentDTO assignmentDTO) {
         try {
+            logger.info("Assignment request received - DTO: date={}, dumpsterId={}, plantId={}", 
+                       assignmentDTO.getDate(), assignmentDTO.getDumpsterId(), assignmentDTO.getPlantId());
+            
+            var employee = authService.getUserByToken(assignmentDTO.getToken());
+            if (employee == null) {
+                logger.warn("Invalid token provided");
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            logger.info("Employee authenticated: id={}, name={}", employee.getId(), employee.getName());
+            
             // Convert DTO to entity parameters and call service
             es.deusto.sd.ecoembes.entity.Assignment assignment = ecoembesService.assignDumpsterToPlant(
                 assignmentDTO.getDate(),
                 assignmentDTO.getDumpsterId(),
-                assignmentDTO.getEmployeeId(),
+                employee.getId(),
                 assignmentDTO.getPlantId()
             );
             
@@ -225,10 +242,13 @@ public class EcoembesController {
             
             return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
+            logger.error("Bad request in assignment: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
+            logger.error("Resource not found in assignment: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
+            logger.error("Internal error in assignment", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

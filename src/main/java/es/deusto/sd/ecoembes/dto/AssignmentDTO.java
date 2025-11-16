@@ -1,12 +1,15 @@
 package es.deusto.sd.ecoembes.dto;
 
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AssignmentDTO {
   private LocalDate date;
   private Long dumpsterId;
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Long employeeId;
   private Long plantId;
+  private String token;
 
   // Constructors
   public AssignmentDTO() {
@@ -50,5 +53,13 @@ public class AssignmentDTO {
 
   public void setPlantId(Long plantId) {
     this.plantId = plantId;
+  }
+
+  public String getToken() {
+    return token;
+  }
+
+  public void setToken(String token) {
+    this.token = token;
   }
 }
