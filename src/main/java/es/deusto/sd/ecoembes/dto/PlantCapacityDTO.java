@@ -1,6 +1,8 @@
 package es.deusto.sd.ecoembes.dto;
 
-public class PlantCapacityDTO {
+import java.io.Serializable;
+
+public class PlantCapacityDTO implements Serializable { //we make it serializable so that it can be send as output or input in sockets
   private Long plantId;
   private double availableCapacityTons;
 
