@@ -166,7 +166,7 @@ public class EcoembesController {
         try {
             // Get all plants from service
             List<RecyclingPlant> plants = ecoembesService.getAllPlants();
-
+            
             // Convert entities to DTOs with calculated capacity
             List<PlantCapacityDTO> capacities = plants.stream()
                 .map(plant -> toPlantCapacityDTO(plant, date))

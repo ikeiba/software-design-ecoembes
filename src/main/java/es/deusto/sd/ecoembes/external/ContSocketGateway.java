@@ -74,43 +74,7 @@ public class ContSocketGateway implements IServiceGateway {
         return response;
     }
 
-    @Override
-    public PlantCapacityDTO getSinglePlantCapacity(Long plantId, LocalDate date) {
-
-        PlantCapacityDTO receivedPlantCapacityDto = null;
-        String datestr = date.toString();
-
-		try (Socket socket = new Socket(serverIP, serverPort);
-			//Streams to send and receive information are created from the Socket
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-			DataOutputStream out = new DataOutputStream(socket.getOutputStream())) {
-			
-			//we first send a prefix to the server saying the type of value we are sending. 
-			out.writeUTF("String");
-			out.flush();
-
-			String message = datestr +"#"+ String.valueOf(plantId);
-			out.writeUTF(message);
-			System.out.println(" - Sending DATE and ID to '" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + message + "'");
-
-			try {
-				receivedPlantCapacityDto = (PlantCapacityDTO) in.readObject();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-			System.out.println(" - Getting PlantCapacityDTO from'" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + (receivedPlantCapacityDto != null ? receivedPlantCapacityDto.getPlantId() : "null") + "'");
-
-		} catch (UnknownHostException e) {
-			System.err.println("# Trans. SocketClient: Socket error: " + e.getMessage());	
-		} catch (EOFException e) {
-			System.err.println("# Trans. SocketClient: EOF error: " + e.getMessage());
-		} catch (IOException e) {
-			System.err.println("# Trans. SocketClient: IO error: " + e.getMessage());
-		}
-
-    
-        return receivedPlantCapacityDto;
-    }
+  
 
     @Override
     public AssignmentDTO assignDumpsterToPlant(AssignmentDTO assignmentDTO) {

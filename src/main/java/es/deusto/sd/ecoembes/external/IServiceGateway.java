@@ -10,8 +10,7 @@ import es.deusto.sd.ecoembes.dto.PlantCapacityDTO;
 
 
 public interface IServiceGateway {
-	public List<PlantCapacityDTO> getCapacity(LocalDate date); 
-    public PlantCapacityDTO getSinglePlantCapacity(Long plantId,LocalDate date); //only one recycling plant capacity
+	public List<PlantCapacityDTO> getCapacity(LocalDate date); //yo creo que solo hace falta este 
     public AssignmentDTO assignDumpsterToPlant(AssignmentDTO assignmentDTO); //for assigning a Dumpster to Plant
 
 
