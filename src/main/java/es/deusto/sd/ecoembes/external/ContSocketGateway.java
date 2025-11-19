@@ -10,7 +10,6 @@ import java.net.UnknownHostException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,8 +32,10 @@ public class ContSocketGateway implements IServiceGateway {
     public ContSocketGateway(){
     }
 
+
+
     @Override
-    public Optional<List<PlantCapacityDTO>> getCapacity(LocalDate date) {
+    public List<PlantCapacityDTO> getCapacity(LocalDate date) {
 
         List<PlantCapacityDTO> response = new ArrayList();
 		PlantCapacityDTO receivedPlantCapacityDto = null; 
@@ -45,6 +46,9 @@ public class ContSocketGateway implements IServiceGateway {
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream())) {
 			
+			//we first send a prefix to the server saying the type of value we are sending. 
+			out.writeUTF("String");
+			out.flush();
 			//Send request (one String) to the server
 			out.writeUTF(datestr);
 			System.out.println(" - Sending DATE to '" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + datestr + "'");
@@ -67,11 +71,11 @@ public class ContSocketGateway implements IServiceGateway {
 		}
 
     
-        return Optional.ofNullable(response);
+        return response;
     }
 
     @Override
-    public Optional<PlantCapacityDTO> getSinglePlantCapacity(Long plantId, LocalDate date) {
+    public PlantCapacityDTO getSinglePlantCapacity(Long plantId, LocalDate date) {
 
         PlantCapacityDTO receivedPlantCapacityDto = null;
         String datestr = date.toString();
@@ -81,12 +85,14 @@ public class ContSocketGateway implements IServiceGateway {
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream())) {
 			
-			out.writeUTF(datestr);
-			System.out.println(" - Sending DATE to '" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + datestr + "'");
-			
-            out.writeLong(plantId);
-			System.out.println(" - Sending DATE to '" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + String.valueOf(plantId)+ "'");
-			
+			//we first send a prefix to the server saying the type of value we are sending. 
+			out.writeUTF("String");
+			out.flush();
+
+			String message = datestr +"#"+ String.valueOf(plantId);
+			out.writeUTF(message);
+			System.out.println(" - Sending DATE and ID to '" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + message + "'");
+
 			try {
 				receivedPlantCapacityDto = (PlantCapacityDTO) in.readObject();
 			} catch (ClassNotFoundException e) {
@@ -103,11 +109,11 @@ public class ContSocketGateway implements IServiceGateway {
 		}
 
     
-        return Optional.ofNullable(receivedPlantCapacityDto);
+        return receivedPlantCapacityDto;
     }
 
     @Override
-    public Optional<AssignmentDTO> assignDumpsterToPlant(AssignmentDTO assignmentDTO) {
+    public AssignmentDTO assignDumpsterToPlant(AssignmentDTO assignmentDTO) {
 
 		AssignmentDTO assignmentDTO_ret = null;
 
@@ -117,6 +123,9 @@ public class ContSocketGateway implements IServiceGateway {
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 			
 			try {
+			//we first send a prefix to the server saying the type of value we are sending. 
+			out.writeUTF("Object");
+			out.flush();
 				out.writeObject(assignmentDTO);
 			}catch (IOException e) {
 				e.printStackTrace();
@@ -140,7 +149,7 @@ public class ContSocketGateway implements IServiceGateway {
 		}
 
     
-        return Optional.ofNullable(assignmentDTO_ret);
+        return assignmentDTO_ret;
 		
     }
 
