@@ -4,6 +4,7 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import es.deusto.sd.ecoembes.dto.AssignmentDTO;
@@ -21,13 +23,14 @@ import es.deusto.sd.ecoembes.dto.PlantCapacityDTO;
 @Component //because it must be a singleton
 public class ContSocketGateway implements IServiceGateway {
 
-    private String serverIP; 
-    private int serverPort; 
+ 	
+	//API Server Host and Port NOT hard-coded: Defined in application.properties
+    @Value("${gateway.cont.ip}")
+    private String serverIP;
 
-    public ContSocketGateway(String serverIp, int serverPort){
-
-        this.serverIP = serverIp; 
-        this.serverPort = serverPort; 
+    @Value("${gateway.cont.port}")
+    private int serverPort;
+    public ContSocketGateway(){
     }
 
     @Override
@@ -64,7 +67,7 @@ public class ContSocketGateway implements IServiceGateway {
 		}
 
     
-        return Optional.of(response);
+        return Optional.ofNullable(response);
     }
 
     @Override
@@ -89,7 +92,7 @@ public class ContSocketGateway implements IServiceGateway {
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-			System.out.println(" - Getting PlantCapacityDTO from'" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + String.valueOf(receivedPlantCapacityDto.getPlantId()) + "'");
+			System.out.println(" - Getting PlantCapacityDTO from'" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + (receivedPlantCapacityDto != null ? receivedPlantCapacityDto.getPlantId() : "null") + "'");
 
 		} catch (UnknownHostException e) {
 			System.err.println("# Trans. SocketClient: Socket error: " + e.getMessage());	
@@ -100,13 +103,45 @@ public class ContSocketGateway implements IServiceGateway {
 		}
 
     
-        return Optional.of(receivedPlantCapacityDto);
+        return Optional.ofNullable(receivedPlantCapacityDto);
     }
 
     @Override
     public Optional<AssignmentDTO> assignDumpsterToPlant(AssignmentDTO assignmentDTO) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'assignDumpsterToPlant'");
+
+		AssignmentDTO assignmentDTO_ret = null;
+
+		try (var socket = new Socket(serverIP, serverPort);
+			//Streams to send and receive information are created from the Socket
+			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+			
+			try {
+				out.writeObject(assignmentDTO);
+			}catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			System.out.println(" - Sending AssignmentDTO to '" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + assignmentDTO.getToken() + "'");
+
+			try {
+				assignmentDTO_ret = (AssignmentDTO) in.readObject();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			System.out.println(" - Getting AssignmentDTO from'" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + (assignmentDTO_ret.getToken() != null ? assignmentDTO_ret.getToken() : "null") + "'");
+
+		} catch (UnknownHostException e) {
+			System.err.println("# Trans. SocketClient: Socket error: " + e.getMessage());	
+		} catch (EOFException e) {
+			System.err.println("# Trans. SocketClient: EOF error: " + e.getMessage());
+		} catch (IOException e) {
+			System.err.println("# Trans. SocketClient: IO error: " + e.getMessage());
+		}
+
+    
+        return Optional.ofNullable(assignmentDTO_ret);
+		
     }
 
 

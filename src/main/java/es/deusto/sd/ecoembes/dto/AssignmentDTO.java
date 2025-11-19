@@ -1,9 +1,11 @@
 package es.deusto.sd.ecoembes.dto;
 
+import java.io.Serializable;
 import java.time.LocalDate;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class AssignmentDTO {
+public class AssignmentDTO implements Serializable{
   private LocalDate date;
   private Long dumpsterId;
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
