@@ -1,17 +1,14 @@
 package es.deusto.sd.ecoembes.external;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
-import es.deusto.sd.ecoembes.dto.AssignmentDTO;
-import es.deusto.sd.ecoembes.dto.PlantCapacityDTO;
+import es.deusto.sd.ecoembes.dto.AssignmentExternalDTO;
 
 
 
 public interface IServiceGateway {
-	public List<PlantCapacityDTO> getCapacity(LocalDate date); //yo creo que solo hace falta este 
-    public AssignmentDTO assignDumpsterToPlant(AssignmentDTO assignmentDTO); //for assigning a Dumpster to Plant
+	public double getCapacity(LocalDate date); //yo creo que solo hace falta este 
+    public AssignmentExternalDTO assignDumpsterToPlant(AssignmentExternalDTO assignmentExternalDTO); //for assigning a Dumpster to Plant
 
 
     

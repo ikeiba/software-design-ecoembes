@@ -1,5 +1,6 @@
 package es.deusto.sd.ecoembes.external;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -8,15 +9,13 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import es.deusto.sd.ecoembes.dto.AssignmentDTO;
-import es.deusto.sd.ecoembes.dto.PlantCapacityDTO;
+import es.deusto.sd.ecoembes.dto.AssignmentExternalDTO;
 
 //Here we will implement de client socket
 
@@ -36,15 +35,14 @@ public class ContSocketGateway implements IServiceGateway {
     }
 
     @Override
-    public List<PlantCapacityDTO> getCapacity(LocalDate date) {
+    public double getCapacity(LocalDate date) {
 
-        List<PlantCapacityDTO> response = new ArrayList();
-		PlantCapacityDTO receivedPlantCapacityDto = null; 
         String datestr = date.toString();
+		double capacity = 0.0; 
 
 		try (Socket socket = new Socket(serverIP, serverPort);
 			//Streams to send and receive information are created from the Socket
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            DataInputStream in = new DataInputStream(socket.getInputStream());
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream())) {
 			
 			//we first send a prefix to the server saying the type of value we are sending. 
@@ -54,14 +52,10 @@ public class ContSocketGateway implements IServiceGateway {
 			out.writeUTF(datestr);
 			System.out.println(" - Sending DATE to '" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + datestr + "'");
 			
-			try {
-				receivedPlantCapacityDto = (PlantCapacityDTO) in.readObject();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}           
-			response.add(receivedPlantCapacityDto);
+			capacity = in.readDouble();
+         
 
-			System.out.println(" - Getting PlantCapacityDTO from'" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + String.valueOf(receivedPlantCapacityDto.getPlantId()) + "'");
+			System.out.println(" - Getting PlantCapacityDTO from'" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + String.valueOf(capacity) + "'");
 
 		} catch (UnknownHostException e) {
 			System.err.println("# Trans. SocketClient: Socket error: " + e.getMessage());	
@@ -70,17 +64,15 @@ public class ContSocketGateway implements IServiceGateway {
 		} catch (IOException e) {
 			System.err.println("# Trans. SocketClient: IO error: " + e.getMessage());
 		}
-
-    
-        return response;
+        return capacity;
     }
 
   
 
     @Override
-    public AssignmentDTO assignDumpsterToPlant(AssignmentDTO assignmentDTO) {
+    public AssignmentExternalDTO assignDumpsterToPlant(AssignmentExternalDTO assignmentExternalDTO) {
 
-		AssignmentDTO assignmentDTO_ret = null;
+		AssignmentExternalDTO assignmentExternalDTO_ret = null;
 
 		try (var socket = new Socket(serverIP, serverPort);
 			//Streams to send and receive information are created from the Socket
@@ -91,19 +83,17 @@ public class ContSocketGateway implements IServiceGateway {
 			//we first send a prefix to the server saying the type of value we are sending. 
 			out.writeUTF("Object");
 			out.flush();
-				out.writeObject(assignmentDTO);
+				out.writeObject(assignmentExternalDTO);
 			}catch (IOException e) {
-				e.printStackTrace();
 			}
 
-			System.out.println(" - Sending AssignmentDTO to '" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + assignmentDTO.getToken() + "'");
+			System.out.println(" - Sending AssignmentDTO to '" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + assignmentExternalDTO.getToken() + "'");
 
 			try {
-				assignmentDTO_ret = (AssignmentDTO) in.readObject();
+				assignmentExternalDTO_ret = (AssignmentExternalDTO) in.readObject();
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
 			}
-			System.out.println(" - Getting AssignmentDTO from'" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + (assignmentDTO_ret.getToken() != null ? assignmentDTO_ret.getToken() : "null") + "'");
+			System.out.println(" - Getting AssignmentDTO from'" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + (assignmentExternalDTO_ret.getToken() != null ? assignmentExternalDTO_ret.getToken() : "null") + "'");
 
 		} catch (UnknownHostException e) {
 			System.err.println("# Trans. SocketClient: Socket error: " + e.getMessage());	
@@ -114,7 +104,7 @@ public class ContSocketGateway implements IServiceGateway {
 		}
 
     
-        return assignmentDTO_ret;
+        return assignmentExternalDTO_ret;
 		
     }
 
