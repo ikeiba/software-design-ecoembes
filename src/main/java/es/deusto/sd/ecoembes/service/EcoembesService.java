@@ -208,7 +208,7 @@ public class EcoembesService {
 		}
 
 		IServiceGateway gateway = gatewayFactory.getGateway(plant.get().getName());
-		Double capacity = gateway.getCapacity(date);
+		double capacity = gateway.getCapacity(date);
 
 
 		return capacity;
