@@ -61,12 +61,11 @@ public class DataInitializer {
 
 			// --- 2. Crear Plantas de Reciclaje ---
 			logger.info("Creating recycling plants...");
-			RecyclingPlant plant1 = new RecyclingPlant("Plásticos Bizkaia S.A.");
-			RecyclingPlant plant2 = new RecyclingPlant("Contenedores Gipuzkoa");
-			RecyclingPlant plant3 = new RecyclingPlant("EcoReciclaje Álava");
+			RecyclingPlant plant1 = new RecyclingPlant("PlasSB Ltd.");
+			RecyclingPlant plant2 = new RecyclingPlant("ContSocket Ltd.");
 
 			// Save plants - IDs will be auto-generated
-			plantRepository.saveAll(List.of(plant1, plant2, plant3));
+			plantRepository.saveAll(List.of(plant1, plant2));
 			logger.info("✓ 3 Recycling Plants saved!");
 
 
@@ -174,20 +173,15 @@ public class DataInitializer {
 			Assignment a4 = new Assignment(today, d5, emp2, plant2);
 			Assignment a5 = new Assignment(today, d6, emp3, plant2);
 			Assignment a6 = new Assignment(today, d7, emp3, plant2);
-			Assignment a7 = new Assignment(today, d8, emp4, plant3);
-			Assignment a8 = new Assignment(today, d9, emp4, plant3);
-			Assignment a9 = new Assignment(today, d10, emp1, plant3);
-			Assignment a10 = new Assignment(today, d4, emp2, plant3);
 			
 			// Some assignments for yesterday to have historical data
 			LocalDate yesterday = LocalDate.now().minusDays(1);
 			Assignment a11 = new Assignment(yesterday, d1, emp2, plant1);
 			Assignment a12 = new Assignment(yesterday, d2, emp1, plant1);
 			Assignment a13 = new Assignment(yesterday, d5, emp3, plant2);
-			Assignment a14 = new Assignment(yesterday, d8, emp4, plant3);
 			
 			// Save all assignments
-			assignmentRepository.saveAll(List.of(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14));
+			assignmentRepository.saveAll(List.of(a1, a2, a3, a4, a5, a6, a11, a12, a13));
 			logger.info("✓ Assignments saved successfully!");
 
 			// Resumen final
