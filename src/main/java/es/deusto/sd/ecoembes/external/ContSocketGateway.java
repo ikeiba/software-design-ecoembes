@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import es.deusto.sd.ecoembes.dto.AssignmentDTO;
@@ -19,7 +20,8 @@ import es.deusto.sd.ecoembes.dto.PlantCapacityDTO;
 
 //Here we will implement de client socket
 
-@Component //because it must be a singleton
+@Component("ContSocket Ltd.") //because it must be a singleton
+@Lazy
 public class ContSocketGateway implements IServiceGateway {
 
  	
@@ -29,10 +31,9 @@ public class ContSocketGateway implements IServiceGateway {
 
     @Value("${gateway.cont.port}")
     private int serverPort;
-    public ContSocketGateway(){
+    
+	public ContSocketGateway(){
     }
-
-
 
     @Override
     public List<PlantCapacityDTO> getCapacity(LocalDate date) {

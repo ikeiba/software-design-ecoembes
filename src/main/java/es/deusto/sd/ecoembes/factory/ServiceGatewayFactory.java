@@ -5,7 +5,6 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import  es.deusto.sd.ecoembes.external.IServiceGateway;
-import  es.deusto.sd.ecoembes.external.ContSocketGateway;
 
 
 @Component
