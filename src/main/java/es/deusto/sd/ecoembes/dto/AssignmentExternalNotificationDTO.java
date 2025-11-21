@@ -9,8 +9,10 @@ public class AssignmentExternalNotificationDTO implements Serializable{
   private LocalDate date;
   private int nDumpster; //number of dumpsters being sent
   private int nContainer; //the combined number of containers they contain
+
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String token;
+
 
   // Constructors
   public AssignmentExternalNotificationDTO() {
@@ -23,6 +25,7 @@ public class AssignmentExternalNotificationDTO implements Serializable{
 
   }
 
+ 
   // Getters and Setters
   public LocalDate getDate() {
     return date;
