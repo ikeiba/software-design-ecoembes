@@ -10,12 +10,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.time.LocalDate;
 
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import es.deusto.sd.ecoembes.dto.AssignmentExternalDTO;
+import es.deusto.sd.ecoembes.dto.AssignmentExternalNotificationDTO;
 
 //Here we will implement de client socket
 
@@ -70,9 +69,9 @@ public class ContSocketGateway implements IServiceGateway {
   
 
     @Override
-    public AssignmentExternalDTO assignDumpsterToPlant(AssignmentExternalDTO assignmentExternalDTO) {
+    public AssignmentExternalNotificationDTO assignDumpsterToPlant(AssignmentExternalNotificationDTO assignmentExternalNotificationDTO) {
 
-		AssignmentExternalDTO assignmentExternalDTO_ret = null;
+		AssignmentExternalNotificationDTO assignmentExternalDTO_ret = null;
 
 		try (var socket = new Socket(serverIP, serverPort);
 			//Streams to send and receive information are created from the Socket
@@ -83,17 +82,17 @@ public class ContSocketGateway implements IServiceGateway {
 			//we first send a prefix to the server saying the type of value we are sending. 
 			out.writeUTF("Object");
 			out.flush();
-				out.writeObject(assignmentExternalDTO);
+				out.writeObject(assignmentExternalNotificationDTO);
 			}catch (IOException e) {
 			}
 
-			System.out.println(" - Sending AssignmentDTO to '" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + assignmentExternalDTO.getToken() + "'");
+			System.out.println(" - Sending AssignmentDTO to '" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + assignmentExternalNotificationDTO.getToken() + "'");
 
 			try {
-				assignmentExternalDTO_ret = (AssignmentExternalDTO) in.readObject();
+				assignmentExternalDTO_ret = (AssignmentExternalNotificationDTO) in.readObject();
 			} catch (ClassNotFoundException e) {
 			}
-			System.out.println(" - Getting AssignmentDTO from'" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + (assignmentExternalDTO_ret.getToken() != null ? assignmentExternalDTO_ret.getToken() : "null") + "'");
+			System.out.println(" - Getting AssignmentDTO from'" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "' -> '" + (assignmentExternalNotificationDTO.getToken() != null ? assignmentExternalNotificationDTO.getToken() : "null") + "'");
 
 		} catch (UnknownHostException e) {
 			System.err.println("# Trans. SocketClient: Socket error: " + e.getMessage());	
@@ -107,6 +106,8 @@ public class ContSocketGateway implements IServiceGateway {
         return assignmentExternalDTO_ret;
 		
     }
+
+
 
 
 
