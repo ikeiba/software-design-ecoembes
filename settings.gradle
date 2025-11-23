@@ -2,3 +2,4 @@ rootProject.name = 'software-design-ecoembes'
 
 include 'ecoembes'
 include 'ClientSocket'
+include 'PlasSB'
