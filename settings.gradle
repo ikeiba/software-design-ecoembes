@@ -1,5 +1,5 @@
 rootProject.name = 'ecoembes-proyect'
 
-include 'ecoembes'
-include 'ClientSocket'
-include 'PlasSB'
+include 'EcoembesServer'
+include 'ContSocketServer'
+include 'PlasSBServer'
