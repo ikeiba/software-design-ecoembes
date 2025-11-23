@@ -1,18 +1,17 @@
-package es.deusto.sd.ecoembes.dto;
+package es.deusto.sd.plas.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class AssignmentExternalNotificationDTO implements Serializable{
+public class AssignmentExternalNotificationDTO implements Serializable {
   private LocalDate date;
-  private int nDumpster; //number of dumpsters being sent
-  private int nContainer; //the combined number of containers they contain
+  private int nDumpster; // number of dumpsters being sent
+  private int nContainer; // the combined number of containers they contain
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String token;
-
 
   // Constructors
   public AssignmentExternalNotificationDTO() {
@@ -20,12 +19,11 @@ public class AssignmentExternalNotificationDTO implements Serializable{
 
   public AssignmentExternalNotificationDTO(LocalDate date, int nDumpster, int nContainer) {
     this.date = date;
-    this.nDumpster = nDumpster; 
+    this.nDumpster = nDumpster;
     this.nContainer = nContainer;
 
   }
 
- 
   // Getters and Setters
   public LocalDate getDate() {
     return date;
@@ -34,8 +32,6 @@ public class AssignmentExternalNotificationDTO implements Serializable{
   public void setDate(LocalDate date) {
     this.date = date;
   }
-
- 
 
   public String getToken() {
     return token;

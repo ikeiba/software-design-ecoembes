@@ -12,11 +12,15 @@ import java.net.UnknownHostException;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.deusto.sd.ecoembes.dto.AssignmentExternalNotificationDTO;
 
+@Component("PlasSB Ltd.")
+@Lazy
 public class PlasSBServerGateway implements IServiceGateway {
 
   // API Server Host and Port NOT hard-coded: Defined in application.properties
