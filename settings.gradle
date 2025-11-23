@@ -1,4 +1,4 @@
-rootProject.name = 'software-design-ecoembes'
+rootProject.name = 'ecoembes'
 
 include 'ecoembes'
 include 'ClientSocket'
