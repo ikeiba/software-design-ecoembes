@@ -1,8 +1,6 @@
 package es.deusto.sd.plas.service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,17 +9,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.web.bind.annotation.PostMapping;
-
-import org.springframework.web.bind.annotation.RestController;
-
 import es.deusto.sd.plas.dto.AssignmentExternalNotificationDTO;
+import es.deusto.sd.plas.model.Assignment;
+import es.deusto.sd.plas.repository.PlasAssignmentRepository;
 
 @RestController
 public class PlasSBService {
 
-  // Simple in-memory store of assignments (date -> token)
-  private final Map<LocalDate, String> assignments = new HashMap<>();
+  private final PlasAssignmentRepository assignmentRepository;
+
+  public PlasSBService(PlasAssignmentRepository assignmentRepository) {
+    this.assignmentRepository = assignmentRepository;
+  }
 
   @GetMapping(path = "/capacity", produces = MediaType.APPLICATION_JSON_VALUE)
   public double getCapacity(@RequestParam("date") String dateStr) {
@@ -34,9 +33,11 @@ public class PlasSBService {
   @PostMapping(path = "/assign", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public AssignmentExternalNotificationDTO assign(@RequestBody AssignmentExternalNotificationDTO dto) {
     System.out.println("PlasSB (HTTP): received assign request for " + dto.getDate());
-    // simple acceptance: always accept and generate a token
     String token = "PLASSB-TOKEN-" + System.currentTimeMillis();
-    assignments.put(dto.getDate(), token);
+
+    Assignment entity = new Assignment(dto.getDate(), dto.getnDumpster(), dto.getnContainer(), token);
+    assignmentRepository.save(entity);
+
     AssignmentExternalNotificationDTO ret = new AssignmentExternalNotificationDTO(dto.getDate(), dto.getnDumpster(),
         dto.getnContainer());
     ret.setToken(token);
