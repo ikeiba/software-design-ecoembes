@@ -1,0 +1,22 @@
+// build.gradle (en la raíz)
+plugins {
+    // Plugins que apliquen a todos, o déjalo vacío por ahora
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    // Configuración que se aplica a ecoembes, proyecto2 y proyecto3
+    apply plugin: 'java' // Asumiendo que son proyectos Java
+
+    group = 'com.tudominio'
+    version = '1.0-SNAPSHOT'
+    
+    test {
+        useJUnitPlatform()
+    }
+}
