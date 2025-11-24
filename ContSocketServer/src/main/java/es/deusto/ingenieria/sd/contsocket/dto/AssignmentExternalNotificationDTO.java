@@ -1,4 +1,4 @@
-package es.deusto.ingenieria.sd.clientsocket.dto;
+package es.deusto.ingenieria.sd.contsocket.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;

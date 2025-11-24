@@ -1,4 +1,4 @@
-package es.deusto.ingenieria.sd.clientsocket;
+package es.deusto.ingenieria.sd.contsocket;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.time.LocalDate;
 import java.util.Map;
 
-import es.deusto.ingenieria.sd.clientsocket.dto.AssignmentExternalNotificationDTO;
+import es.deusto.ingenieria.sd.contsocket.dto.AssignmentExternalNotificationDTO;
 
 public class ContSocketService extends Thread {
 

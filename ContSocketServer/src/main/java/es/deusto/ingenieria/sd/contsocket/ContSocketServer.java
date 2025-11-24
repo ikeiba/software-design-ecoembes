@@ -1,4 +1,4 @@
-package es.deusto.ingenieria.sd.clientsocket;
+package es.deusto.ingenieria.sd.contsocket;
 
 import java.io.IOException;
 import java.net.ServerSocket;

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -197,7 +198,8 @@ public class EcoembesController {
     @GetMapping("/plants/{plantId}/capacity")
     public ResponseEntity<PlantCapacityDTO> getSinglePlantCapacity(
             @PathVariable("plantId") Long plantId,
-            @RequestParam("date") LocalDate date) {
+            @RequestParam("date")
+            @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date) {
         try {
             // Get plant from service
             RecyclingPlant plant = ecoembesService.getPlantById(plantId);
