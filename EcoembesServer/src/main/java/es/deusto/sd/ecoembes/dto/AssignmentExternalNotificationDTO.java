@@ -3,15 +3,12 @@ package es.deusto.sd.ecoembes.dto;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class AssignmentExternalNotificationDTO implements Serializable{
   private LocalDate date;
   private int nDumpster; //number of dumpsters being sent
   private int nContainer; //the combined number of containers they contain
 
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private String token;
+
 
 
   // Constructors
@@ -35,15 +32,7 @@ public class AssignmentExternalNotificationDTO implements Serializable{
     this.date = date;
   }
 
- 
 
-  public String getToken() {
-    return token;
-  }
-
-  public void setToken(String token) {
-    this.token = token;
-  }
 
   public int getnDumpster() {
     return nDumpster;
