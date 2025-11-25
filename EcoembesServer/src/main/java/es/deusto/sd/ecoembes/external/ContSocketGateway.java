@@ -97,6 +97,10 @@ public class ContSocketGateway implements IServiceGateway {
 			logger.info("JSON enviado");
 
 			logger.info("Esperando respuesta");
+			String response = in.readUTF();
+			//if(response.equals("10")){
+				//return 
+		//	}
 			String jsonResponse = in.readUTF();
 			logger.info("Respuesta recibida");
 

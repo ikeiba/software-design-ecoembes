@@ -51,6 +51,15 @@ public class ContSocketService extends Thread {
                 AssignmentExternalNotificationDTO dto =
                         mapper.readValue(jsonReceived, AssignmentExternalNotificationDTO.class);                
 
+               // LocalDate hoy = LocalDate.now();
+
+                // hoy + 10 días
+                //LocalDate limite = hoy.plusDays(10);
+
+                // si es igual o posterior
+               // if (!dto.getDate().isBefore(limite)) {
+               //     out.writeUTF("10");
+               // }
                 AssignmentExternalNotificationDTO result = assignDumpsterToPlant(dto);
 
                 String jsonToSend = mapper.writeValueAsString(result);
