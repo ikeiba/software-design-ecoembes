@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import es.deusto.sd.ecoembes.dao.AssignmentRepository;
@@ -24,6 +26,7 @@ import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;
 import es.deusto.sd.ecoembes.entity.Employee;
 import es.deusto.sd.ecoembes.entity.FillLevel;
 import es.deusto.sd.ecoembes.entity.RecyclingPlant;
+import es.deusto.sd.ecoembes.external.ContSocketGateway;
 import es.deusto.sd.ecoembes.external.IServiceGateway;
 import es.deusto.sd.ecoembes.factory.ServiceGatewayFactory;
 
@@ -36,6 +39,7 @@ public class EcoembesService {
 	private final AssignmentRepository assignmentRepository;
 	private final DumpsterUsageRecordRepository usageRecordRepository; // No se usa ahora mismo, pero podria ser util luego
     private final ServiceGatewayFactory gatewayFactory; 
+    private static final Logger logger = LoggerFactory.getLogger(ContSocketGateway.class);
 
 	public EcoembesService(DumpsterRepository dumpsterRepository,
 						   RecyclingPlantRepository plantRepository,
@@ -262,8 +266,9 @@ public class EcoembesService {
 		try {
 			externalResponse = gateway.assignDumpsterToPlant(assignExternalDto);
 		} catch (Exception e) {
-			e.printStackTrace(); // imprime todo el stack trace
-			throw new RuntimeException("Error sending assignment to server1", e);		
+			logger.error("GATEWAY ERROR - Full stack trace:", e); // ✅ Añade esto
+			e.printStackTrace(); 
+			throw new RuntimeException("Error sending assignment to external server", e);		
 		}
 
 		if (externalResponse == null) {

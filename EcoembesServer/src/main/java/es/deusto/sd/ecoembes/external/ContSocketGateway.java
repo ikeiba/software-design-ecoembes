@@ -15,8 +15,12 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import es.deusto.sd.ecoembes.dto.AssignmentExternalNotificationDTO;
+
+
 
 //Here we will implement de client socket
 
@@ -69,11 +73,12 @@ public class ContSocketGateway implements IServiceGateway {
 		return capacity;
 	}
 	@Override
-
 	public AssignmentExternalNotificationDTO assignDumpsterToPlant(
-			AssignmentExternalNotificationDTO assignmentExternalNotificationDTO) {
+		AssignmentExternalNotificationDTO assignmentExternalNotificationDTO) {
 
 		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new JavaTimeModule()); // ✅ Añade esto
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // ✅ Opcional: para formato ISO
 
 		try (Socket socket = new Socket(serverIP, serverPort);
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -81,20 +86,20 @@ public class ContSocketGateway implements IServiceGateway {
 
 			// Convert DTO to JSON
 			String jsonToSend = mapper.writeValueAsString(assignmentExternalNotificationDTO);
-			logger.info("Enviar");
-			out.writeUTF("JSON"); //le decimos que es un JSON (medida de seguridad)
+			
+			logger.info("Enviando prefijo JSON");
+			out.writeUTF("JSON");
 			out.flush();
-			logger.info("Enviado");
-			logger.info("REcibir");
+			
+			logger.info("Enviando JSON");
 			out.writeUTF(jsonToSend);
 			out.flush();
-			logger.info("REcibido");
+			logger.info("JSON enviado");
 
-
-			// Leer JSON de respuesta
+			logger.info("Esperando respuesta");
 			String jsonResponse = in.readUTF();
+			logger.info("Respuesta recibida");
 
-			// Convertir JSON a DTO
 			AssignmentExternalNotificationDTO response_dto =
 					mapper.readValue(jsonResponse, AssignmentExternalNotificationDTO.class);
 
@@ -104,7 +109,6 @@ public class ContSocketGateway implements IServiceGateway {
 			throw new RuntimeException("Error sending assignment to server2", e);
 		}
 	}
-
 
 
 }

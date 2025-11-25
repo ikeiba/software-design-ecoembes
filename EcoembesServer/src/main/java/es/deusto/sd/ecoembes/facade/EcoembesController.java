@@ -228,7 +228,7 @@ public class EcoembesController {
             @RequestBody AssignmentDTO assignmentDTO) {
         try {
             logger.info("Assignment request received - DTO: date={}, dumpsterId={}, plantId={}", 
-                       assignmentDTO.getDate(), assignmentDTO.getDumpsterId(), assignmentDTO.getPlantId());
+                    assignmentDTO.getDate(), assignmentDTO.getDumpsterId(), assignmentDTO.getPlantId());
             
             var employee = authService.getUserByToken(assignmentDTO.getToken());
             if (employee == null) {
@@ -247,14 +247,22 @@ public class EcoembesController {
             
             // Convert entity back to DTO
             AssignmentDTO responseDTO = toAssignmentDTO(assignment);
+            responseDTO.setToken(assignmentDTO.getToken());
+            
             
             return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             logger.error("Bad request in assignment: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
-            logger.error("Resource not found in assignment: {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            // ✅ Distingue entre NOT_FOUND y errores de gateway
+            if (e.getMessage().contains("not found")) {
+                logger.error("Resource not found in assignment: {}", e.getMessage());
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else {
+                logger.error("Gateway error in assignment: {}", e.getMessage(), e);
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         } catch (Exception e) {
             logger.error("Internal error in assignment", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
