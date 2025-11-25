@@ -3,11 +3,11 @@ package es.deusto.ingenieria.sd.contsocket.dto;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-public class AssignmentExternalNotificationDTO implements Serializable {
+
+public class AssignmentExternalNotificationDTO implements Serializable{
   private LocalDate date;
-  private int nDumpster; // number of dumpsters being sent
-  private int nContainer; // the combined number of containers they contain
-  private String token;
+  private int nDumpster; //number of dumpsters being sent
+  private int nContainer; //the combined number of containers they contain
 
   // Constructors
   public AssignmentExternalNotificationDTO() {
@@ -15,8 +15,9 @@ public class AssignmentExternalNotificationDTO implements Serializable {
 
   public AssignmentExternalNotificationDTO(LocalDate date, int nDumpster, int nContainer) {
     this.date = date;
-    this.nDumpster = nDumpster;
+    this.nDumpster = nDumpster; 
     this.nContainer = nContainer;
+
 
   }
 
@@ -29,13 +30,8 @@ public class AssignmentExternalNotificationDTO implements Serializable {
     this.date = date;
   }
 
-  public String getToken() {
-    return token;
-  }
+ 
 
-  public void setToken(String token) {
-    this.token = token;
-  }
 
   public int getnDumpster() {
     return nDumpster;
@@ -52,5 +48,6 @@ public class AssignmentExternalNotificationDTO implements Serializable {
   public void setnContainer(int nContainer) {
     this.nContainer = nContainer;
   }
+
 
 }
