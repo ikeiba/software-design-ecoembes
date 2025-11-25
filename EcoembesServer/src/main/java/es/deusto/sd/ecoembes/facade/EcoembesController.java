@@ -261,6 +261,23 @@ public class EcoembesController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             } else {
                 logger.error("Gateway error in assignment: {}", e.getMessage(), e);
+                // Log token vs expected information to help debugging 500 errors
+                try {
+                    String receivedToken = assignmentDTO != null ? assignmentDTO.getToken() : null;
+                    var tokenUser = receivedToken != null ? authService.getUserByToken(receivedToken) : null;
+                    if (tokenUser != null) {
+                        logger.error("Gateway error in assignment: {}. Received token='{}' resolves to employee id={}, name={}",
+                                e.getMessage(), receivedToken, tokenUser.getId(), tokenUser.getName(), e);
+                    } else {
+                        logger.error("Gateway error in assignment: {}. Received token='{}' does NOT resolve to a user (null). Payload: date={}, dumpsterId={}, plantId={}",
+                                e.getMessage(), receivedToken,
+                                assignmentDTO != null ? assignmentDTO.getDate() : null,
+                                assignmentDTO != null ? assignmentDTO.getDumpsterId() : null,
+                                assignmentDTO != null ? assignmentDTO.getPlantId() : null, e);
+                    }
+                } catch (Exception logEx) {
+                    logger.error("Error while logging debug token info", logEx);
+                }
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {

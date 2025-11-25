@@ -31,6 +31,13 @@ public class PlasSBServerGateway implements IServiceGateway {
   private int serverPort;
 
   private final ObjectMapper mapper = new ObjectMapper();
+  {
+    // Ensure Java 8 date/time types (LocalDate) are serialized as ISO strings
+    mapper.registerModule(new JavaTimeModule());
+    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    // Ignore unknown properties in responses (e.g. PlasSB returns a 'token' field)
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+  }
 
   public PlasSBServerGateway() {
   }
