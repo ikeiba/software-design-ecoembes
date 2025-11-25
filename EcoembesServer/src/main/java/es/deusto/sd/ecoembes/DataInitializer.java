@@ -53,10 +53,12 @@ public class DataInitializer {
 			Employee emp2 = new Employee("Maialen Etxebarria", "maialen.etx@ecoembes.com", "password456");
 			Employee emp3 = new Employee("Iker Ibarrola", "iker.mendoza@ecoembes.com", "password789");
 			Employee emp4 = new Employee("Nerea Agirre", "nerea.agirre@ecoembes.com", "password321");
+			Employee emp5 = new Employee("Bobi Gomez", "a", "a");
+
 			
 			// Save employees - IDs will be auto-generated
-			employeeRepository.saveAll(List.of(emp1, emp2, emp3, emp4));
-			logger.info("✓ 4 Employees saved!");
+			employeeRepository.saveAll(List.of(emp1, emp2, emp3, emp4, emp5));
+			logger.info("✓ 5 Employees saved!");
 
 
 			// --- 2. Crear Plantas de Reciclaje ---

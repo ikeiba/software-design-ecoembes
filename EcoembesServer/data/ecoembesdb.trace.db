@@ -1,4 +1,0 @@
-2025-11-24 16:08:54.876140+01:00 jdbc[13]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "SELECT * FROM DUMPSTER ASSIGNMENT [*]ASSIGNMENT"
-Syntax error in SQL statement "SELECT * FROM DUMPSTER ASSIGNMENT [*]ASSIGNMENT"; SQL statement:
-SELECT * FROM DUMPSTER ASSIGNMENT ASSIGNMENT [42000-232]
