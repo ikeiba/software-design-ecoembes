@@ -31,8 +31,8 @@ public class ContSocketService extends Thread {
     @Override
     public void run() {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule()); // ✅ Añade esto
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // ✅ Opcional
+        mapper.registerModule(new JavaTimeModule()); 
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); 
 
         try (DataOutputStream out = new DataOutputStream(tcpSocket.getOutputStream());
             DataInputStream in = new DataInputStream(tcpSocket.getInputStream())) {
@@ -51,15 +51,6 @@ public class ContSocketService extends Thread {
                 AssignmentExternalNotificationDTO dto =
                         mapper.readValue(jsonReceived, AssignmentExternalNotificationDTO.class);                
 
-               // LocalDate hoy = LocalDate.now();
-
-                // hoy + 10 días
-                //LocalDate limite = hoy.plusDays(10);
-
-                // si es igual o posterior
-               // if (!dto.getDate().isBefore(limite)) {
-               //     out.writeUTF("10");
-               // }
                 AssignmentExternalNotificationDTO result = assignDumpsterToPlant(dto);
 
                 String jsonToSend = mapper.writeValueAsString(result);
