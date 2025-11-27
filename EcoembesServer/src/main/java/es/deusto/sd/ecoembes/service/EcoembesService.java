@@ -266,7 +266,7 @@ public class EcoembesService {
 		try {
 			externalResponse = gateway.assignDumpsterToPlant(assignExternalDto);
 		} catch (Exception e) {
-			logger.error("GATEWAY ERROR - Full stack trace:", e); // ✅ Añade esto
+			logger.error("GATEWAY ERROR - Full stack trace:", e); 
 			e.printStackTrace(); 
 			throw new RuntimeException("Error sending assignment to external server", e);		
 		}

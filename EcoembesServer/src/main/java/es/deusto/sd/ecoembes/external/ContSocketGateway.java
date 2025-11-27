@@ -77,8 +77,8 @@ public class ContSocketGateway implements IServiceGateway {
 		AssignmentExternalNotificationDTO assignmentExternalNotificationDTO) {
 
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule()); // ✅ Añade esto
-		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // ✅ Opcional: para formato ISO
+		mapper.registerModule(new JavaTimeModule()); 
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); 
 
 		try (Socket socket = new Socket(serverIP, serverPort);
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -97,10 +97,7 @@ public class ContSocketGateway implements IServiceGateway {
 			logger.info("JSON enviado");
 
 			logger.info("Esperando respuesta");
-			String response = in.readUTF();
-			//if(response.equals("10")){
-				//return 
-		//	}
+
 			String jsonResponse = in.readUTF();
 			logger.info("Respuesta recibida");
 

@@ -255,7 +255,7 @@ public class EcoembesController {
             logger.error("Bad request in assignment: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
-            // ✅ Distingue entre NOT_FOUND y errores de gateway
+            // Distingue entre NOT_FOUND y errores de gateway
             if (e.getMessage().contains("not found")) {
                 logger.error("Resource not found in assignment: {}", e.getMessage());
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
