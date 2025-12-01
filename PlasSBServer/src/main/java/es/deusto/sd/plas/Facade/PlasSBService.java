@@ -1,4 +1,6 @@
-package es.deusto.sd.plas.service;
+package es.deusto.sd.plas.Facade;
+
+
 
 import java.time.LocalDate;
 
@@ -10,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.deusto.sd.plas.dto.AssignmentExternalNotificationDTO;
-import es.deusto.sd.plas.model.Assignment;
-import es.deusto.sd.plas.repository.PlasAssignmentRepository;
+import es.deusto.sd.plas.Entities.Assignment;
+import es.deusto.sd.plas.dao.PlasAssignmentRepository;
 
 @RestController
 public class PlasSBService {

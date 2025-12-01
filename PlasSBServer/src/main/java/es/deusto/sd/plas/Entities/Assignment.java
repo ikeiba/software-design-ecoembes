@@ -1,4 +1,4 @@
-package es.deusto.sd.plas.model;
+package es.deusto.sd.plas.Entities;
 
 import java.time.LocalDate;
 
