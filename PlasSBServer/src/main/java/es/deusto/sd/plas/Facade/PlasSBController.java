@@ -16,11 +16,11 @@ import es.deusto.sd.plas.Entities.Assignment;
 import es.deusto.sd.plas.dao.PlasAssignmentRepository;
 
 @RestController
-public class PlasSBService {
+public class PlasSBController {
 
   private final PlasAssignmentRepository assignmentRepository;
 
-  public PlasSBService(PlasAssignmentRepository assignmentRepository) {
+  public PlasSBController(PlasAssignmentRepository assignmentRepository) {
     this.assignmentRepository = assignmentRepository;
   }
 
