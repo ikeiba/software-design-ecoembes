@@ -3,3 +3,6 @@ rootProject.name = 'ecoembes-project'
 include 'EcoembesServer'
 include 'ContSocketServer'
 include 'PlasSBServer'
+include 'ClientSide'
+ 
+ 
