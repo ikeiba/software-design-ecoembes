@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuevo Contenedor - Ecoembes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-success mb-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/dashboard}">Ecoembes Management</a>
+        <a th:href="@{/logout}" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="card-title mb-0 text-success">Registrar Nuevo Contenedor</h4>
+                </div>
+                <div class="card-body">
+                    <div th:if="${error}" class="alert alert-danger" role="alert">
+                        <span th:text="${error}"></span>
+                    </div>
+
+                    <form th:action="@{/dumpsters/new}" th:object="${newDumpster}" method="post">
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Ubicación (Dirección)</label>
+                            <input type="text" class="form-control" id="location" th:field="*{location}" 
+                                   placeholder="Ej: Gran Vía 25" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="postalCode" class="form-label">Código Postal</label>
+                            <input type="text" class="form-control" id="postalCode" th:field="*{postalCode}" 
+                                   placeholder="Ej: 48001" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="initialCapacity" class="form-label">Capacidad Inicial (L)</label>
+                            <input type="number" class="form-control" id="initialCapacity" th:field="*{initialCapacity}" 
+                                   placeholder="Ej: 1000" min="1" required>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">Crear Contenedor</button>
+                            <a th:href="@{/dashboard}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,30 +1,25 @@
-
 package es.deusto.sd.client.proxies;
 
+import java.time.LocalDate;
 import java.util.List;
-
-import es.deusto.sd.client.data.Article;
-import es.deusto.sd.client.data.Category;
-import es.deusto.sd.client.data.Credentials;
-
+import es.deusto.sd.client.data.*;
 
 public interface IEcoembesServiceProxy {
-	// Method for user login
-	String login(Credentials credentials);
+    
+    // Autenticación
+    String login(Login credentials);
+    void logout(String token);
 
-	// Method for user logout
-	void logout(String token);
+    // Contenedores
+    Dumpster createDumpster(NewDumpster newDumpster);
+    
+    // AHORA recibe la fecha explícitamente
+    List<DumpsterStatus> getDumpsterStatus(String postalCode, LocalDate date);
 
-	// Method to retrieve all categories
-	List<Category> getAllCategories();
+    // Plantas
+    // AHORA recibe la fecha explícitamente
+    List<PlantCapacity> getPlantsCapacity(LocalDate date);
 
-	// Method to retrieve articles by category name
-	List<Article> getArticlesByCategory(String categoryName, String currency);
-
-	// Method to get details of a specific article by ID
-	Article getArticleDetails(Long articleId, String currency);
-
-	// Method to place a bid on an article
-	void makeBid(Long articleId, Float amount, String currency, String token);
+    // Asignación
+    Assignment assignDumpster(Assignment assignment);
 }
-

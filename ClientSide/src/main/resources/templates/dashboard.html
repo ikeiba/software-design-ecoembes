@@ -1,374 +1,79 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Waste Management System</title>
+    <title>Dashboard - Ecoembes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: #fafafa;
-            color: #212121;
-            line-height: 1.6;
-        }
-
-        /* Header */
-        .header {
-            background: white;
-            border-bottom: 1px solid #e0e0e0;
-            padding: 0 32px;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .header-left h1 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #212121;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .user-info {
-            font-size: 14px;
-            color: #616161;
-        }
-
-        .btn-logout {
-            padding: 8px 16px;
-            background: transparent;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            font-size: 13px;
-            color: #616161;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-logout:hover {
-            border-color: #212121;
-            color: #212121;
-        }
-
-        /* Main Content */
-        .main {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 32px;
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #616161;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 24px;
-        }
-
-        /* Alert Messages */
-        .alert {
-            padding: 12px 16px;
-            border-radius: 4px;
-            margin-bottom: 24px;
-            font-size: 14px;
-        }
-
-        .alert-success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border-left: 3px solid #2e7d32;
-        }
-
-        .alert-error {
-            background: #ffebee;
-            color: #c62828;
-            border-left: 3px solid #c62828;
-        }
-
-        /* Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 24px;
-        }
-
-        .card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 24px;
-            transition: box-shadow 0.2s;
-        }
-
-        .card:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #212121;
-            margin-bottom: 20px;
-        }
-
-        .field {
-            margin-bottom: 16px;
-        }
-
-        .field label {
-            display: block;
-            font-size: 13px;
-            color: #616161;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        .field input,
-        .field select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            font-size: 14px;
-            background: #fafafa;
-            transition: all 0.2s;
-        }
-
-        .field input:focus,
-        .field select:focus {
-            outline: none;
-            border-color: #212121;
-            background: white;
-        }
-
-        .btn-action {
-            width: 100%;
-            padding: 11px;
-            background: #212121;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: background 0.2s;
-        }
-
-        .btn-action:hover {
-            background: #424242;
-        }
-
-        .result {
-            margin-top: 16px;
-            padding: 12px;
-            background: #fafafa;
-            border-left: 3px solid #212121;
-            border-radius: 2px;
-            font-size: 13px;
-            color: #616161;
-            line-height: 1.5;
-        }
-
-        .result p {
-            margin-bottom: 4px;
-        }
-
-        .result p:last-child {
-            margin-bottom: 0;
-        }
-
-        .result strong {
-            color: #424242;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .main {
-                padding: 24px 16px;
-            }
-            
-            .header {
-                padding: 16px;
-                flex-direction: column;
-                height: auto;
-                gap: 12px;
-            }
-
-            .header-right {
-                width: 100%;
-                justify-content: space-between;
-            }
-        }
+        .card-menu { transition: transform 0.2s; cursor: pointer; }
+        .card-menu:hover { transform: translateY(-5px); border-color: #2e7d32; }
+        .icon-lg { font-size: 2rem; margin-bottom: 1rem; color: #2e7d32; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <h1>Waste Management System</h1>
-        </div>
-        <div class="header-right">
-            <span class="user-info" th:text="${username}">Usuario</span>
-            <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
-                <button type="submit" class="btn-logout">Cerrar Sesión</button>
-            </form>
-        </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="main">
-        <h2 class="section-title">Operaciones</h2>
-        
-        <!-- Global Success Message -->
-        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-        
-        <!-- Global Error Message -->
-        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
-        
-        <div class="grid">
-            <!-- 1. Create New Dumpster -->
-            <div class="card">
-                <h3 class="card-title">Crear Contenedor</h3>
-                <form th:action="@{/dumpster/create}" method="post">
-                    <div class="field">
-                        <label for="dumpsterId">ID del Contenedor</label>
-                        <input type="text" 
-                               id="dumpsterId" 
-                               name="dumpsterId" 
-                               placeholder="Ej: CONT-001"
-                               required>
-                    </div>
-                    <div class="field">
-                        <label for="dumpsterType">Tipo</label>
-                        <select id="dumpsterType" name="type" required>
-                            <option value="">Seleccione tipo</option>
-                            <option value="organico">Orgánico</option>
-                            <option value="plastico">Plástico</option>
-                            <option value="vidrio">Vidrio</option>
-                            <option value="papel">Papel</option>
-                            <option value="metal">Metal</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label for="dumpsterArea">Área</label>
-                        <input type="text" 
-                               id="dumpsterArea" 
-                               name="area" 
-                               placeholder="Ej: Zona Norte"
-                               required>
-                    </div>
-                    <button type="submit" class="btn-action">Crear</button>
-                </form>
-                <div class="result" th:if="${createResult}" th:text="${createResult}"></div>
-            </div>
+<nav class="navbar navbar-dark bg-success mb-4">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">Ecoembes Management</span>
+        <a th:href="@{/logout}" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+    </div>
+</nav>
 
-            <!-- 2. Check Recycling Plant Capacity -->
-            <div class="card">
-                <h3 class="card-title">Capacidad de Planta</h3>
-                <form th:action="@{/plant/capacity}" method="get">
-                    <div class="field">
-                        <label for="plantId">ID de la Planta</label>
-                        <input type="text" 
-                               id="plantId" 
-                               name="plantId" 
-                               placeholder="Ej: PLANTA-001"
-                               required>
-                    </div>
-                    <button type="submit" class="btn-action">Consultar</button>
-                </form>
-                <div class="result" th:if="${capacityResult}">
-                    <p><strong>Planta:</strong> <span th:text="${plantInfo.id}"></span></p>
-                    <p><strong>Capacidad ocupada:</strong> <span th:text="${plantInfo.capacity}"></span>%</p>
-                    <p><strong>Disponible:</strong> <span th:text="${plantInfo.available}"></span> toneladas</p>
-                </div>
-            </div>
+<div class="container">
+    <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 
-            <!-- 3. Assign Dumpster -->
-            <div class="card">
-                <h3 class="card-title">Asignar Contenedor</h3>
-                <form th:action="@{/dumpster/assign}" method="post">
-                    <div class="field">
-                        <label for="assignDumpsterId">ID del Contenedor</label>
-                        <input type="text" 
-                               id="assignDumpsterId" 
-                               name="dumpsterId" 
-                               placeholder="Ej: CONT-001"
-                               required>
-                    </div>
-                    <div class="field">
-                        <label for="assignPlantId">ID de la Planta</label>
-                        <input type="text" 
-                               id="assignPlantId" 
-                               name="plantId" 
-                               placeholder="Ej: PLANTA-001"
-                               required>
-                    </div>
-                    <button type="submit" class="btn-action">Asignar</button>
-                </form>
-                <div class="result" th:if="${assignResult}" th:text="${assignResult}"></div>
-            </div>
+    <h2 class="mb-4 text-center">Panel de Gestión</h2>
 
-            <!-- 4. Dumpster Usage -->
-            <div class="card">
-                <h3 class="card-title">Uso del Contenedor</h3>
-                <form th:action="@{/dumpster/usage}" method="get">
-                    <div class="field">
-                        <label for="usageDumpsterId">ID del Contenedor</label>
-                        <input type="text" 
-                               id="usageDumpsterId" 
-                               name="dumpsterId" 
-                               placeholder="Ej: CONT-001"
-                               required>
-                    </div>
-                    <button type="submit" class="btn-action">Consultar</button>
-                </form>
-                <div class="result" th:if="${usageResult}">
-                    <p><strong>Contenedor:</strong> <span th:text="${usageInfo.id}"></span></p>
-                    <p><strong>Nivel de llenado:</strong> <span th:text="${usageInfo.fillLevel}"></span>%</p>
-                    <p><strong>Última recolección:</strong> <span th:text="${usageInfo.lastCollection}"></span></p>
-                </div>
-            </div>
-
-            <!-- 5. Check Dumpster Status by Area -->
-            <div class="card">
-                <h3 class="card-title">Estado por Área</h3>
-                <form th:action="@{/dumpster/status-area}" method="get">
-                    <div class="field">
-                        <label for="statusArea">Área</label>
-                        <input type="text" 
-                               id="statusArea" 
-                               name="area" 
-                               placeholder="Ej: Zona Norte"
-                               required>
-                    </div>
-                    <button type="submit" class="btn-action">Consultar</button>
-                </form>
-                <div class="result" th:if="${statusResult}">
-                    <p><strong>Área:</strong> <span th:text="${areaStatus.area}"></span></p>
-                    <p><strong>Contenedores activos:</strong> <span th:text="${areaStatus.active}"></span></p>
-                    <p><strong>Requieren vaciado:</strong> <span th:text="${areaStatus.needsEmptying}"></span></p>
-                    <p><strong>Capacidad promedio:</strong> <span th:text="${areaStatus.avgCapacity}"></span>%</p>
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 card-menu text-center p-3 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-lg">🗑️</div>
+                    <h5 class="card-title">Nuevo Contenedor</h5>
+                    <p class="card-text small text-muted">Registrar un nuevo contenedor en el sistema.</p>
+                    <a th:href="@{/dumpsters/new}" class="stretched-link"></a>
                 </div>
             </div>
         </div>
-    </main>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 card-menu text-center p-3 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-lg">📊</div>
+                    <h5 class="card-title">Consultar Estado</h5>
+                    <p class="card-text small text-muted">Ver niveles de llenado por Código Postal.</p>
+                    <a th:href="@{/dumpsters/status}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 card-menu text-center p-3 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-lg">🏭</div>
+                    <h5 class="card-title">Capacidad Plantas</h5>
+                    <p class="card-text small text-muted">Consultar disponibilidad en plantas de reciclaje.</p>
+                    <a th:href="@{/plants/capacity}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 card-menu text-center p-3 shadow-sm border-success">
+                <div class="card-body">
+                    <div class="icon-lg">🚚</div>
+                    <h5 class="card-title text-success">Asignar Ruta</h5>
+                    <p class="card-text small text-muted">Enviar contenedores a una planta específica.</p>
+                    <a th:href="@{/assignments/new}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
