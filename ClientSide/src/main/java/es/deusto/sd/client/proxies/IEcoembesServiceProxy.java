@@ -8,7 +8,7 @@ import es.deusto.sd.client.data.Category;
 import es.deusto.sd.client.data.Credentials;
 
 
-public interface IAuctionsServiceProxy {
+public interface IEcoembesServiceProxy {
 	// Method for user login
 	String login(Credentials credentials);
 

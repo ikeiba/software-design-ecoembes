@@ -14,7 +14,7 @@ import es.deusto.sd.client.data.Credentials;
 
 @Service
 @Primary
-public class DummyAuctionsServiceProxy implements IAuctionsServiceProxy {
+public class DummyAuctionsServiceProxy implements IEcoembesServiceProxy {
 
     @Override
     public String login(Credentials credentials) {

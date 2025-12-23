@@ -14,7 +14,7 @@ import es.deusto.sd.client.data.Credentials;
 
 
 @Service
-public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
+public class RestTemplateServiceProxy implements IEcoembesServiceProxy{
 
     private final RestTemplate restTemplate;
 

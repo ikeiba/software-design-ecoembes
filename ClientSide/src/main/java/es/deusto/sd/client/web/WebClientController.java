@@ -15,7 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import es.deusto.sd.client.data.Article;
 import es.deusto.sd.client.data.Credentials;
-import es.deusto.sd.client.proxies.IAuctionsServiceProxy;
+import es.deusto.sd.client.proxies.IEcoembesServiceProxy;
 import jakarta.servlet.http.HttpServletRequest;
 
 
@@ -23,7 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class WebClientController {
 
 	@Autowired
-	private IAuctionsServiceProxy auctionsServiceProxy;
+	private IEcoembesServiceProxy ecoembesServiceProxy;
 
 	private String token; // Stores the session token
 
@@ -56,7 +56,7 @@ public class WebClientController {
 		Credentials credentials = new Credentials(userEmail, userPassword);
 
 		try {
-			token = auctionsServiceProxy.login(credentials);
+			token = ecoembesServiceProxy.login(credentials);
 
 			// Redirect to the original page or root if redirectUrl is null
 			return "dashboard";
@@ -70,7 +70,7 @@ public class WebClientController {
 	public String performLogout(@RequestParam(value = "redirectUrl", defaultValue = "/") String redirection,
 								Model model) {
 		try {
-			auctionsServiceProxy.logout(token);
+			ecoembesServiceProxy.logout(token);
 			token = null; // Clear the token after logout
 			model.addAttribute("successMessage", "Logout successful.");
 		} catch (RuntimeException e) {
@@ -88,7 +88,7 @@ public class WebClientController {
 		List<Article> articles;
 
 		try {
-			articles = auctionsServiceProxy.getArticlesByCategory(categoryName, selectedCurrency);
+			articles = ecoembesServiceProxy.getArticlesByCategory(categoryName, selectedCurrency);
 			model.addAttribute("articles", articles);
 			model.addAttribute("categoryName", categoryName);
 			model.addAttribute("selectedCurrency", selectedCurrency);
@@ -109,7 +109,7 @@ public class WebClientController {
 		Article article;
 
 		try {
-			article = auctionsServiceProxy.getArticleDetails(productId, selectedCurrency);
+			article = ecoembesServiceProxy.getArticleDetails(productId, selectedCurrency);
 			model.addAttribute("article", article);
 			model.addAttribute("selectedCurrency", selectedCurrency);
 		} catch (RuntimeException e) {
@@ -128,7 +128,7 @@ public class WebClientController {
 						  Model model,
 						  RedirectAttributes redirectAttributes) {
 		try {
-			auctionsServiceProxy.makeBid(productId, bidAmount, selectedCurrency, token);
+			ecoembesServiceProxy.makeBid(productId, bidAmount, selectedCurrency, token);
 			// RedirectAttributes are used to pass attributes to the redirected page
 			// Add a success message to be displayed in the article view
 			redirectAttributes.addFlashAttribute("successMessage", "Bid placed successfully!");
