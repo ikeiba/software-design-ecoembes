@@ -5,7 +5,6 @@ package es.deusto.sd.client.proxies;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import es.deusto.sd.client.data.Article;
@@ -13,7 +12,6 @@ import es.deusto.sd.client.data.Category;
 import es.deusto.sd.client.data.Credentials;
 
 @Service
-@Primary
 public class DummyAuctionsServiceProxy implements IEcoembesServiceProxy {
 
     @Override

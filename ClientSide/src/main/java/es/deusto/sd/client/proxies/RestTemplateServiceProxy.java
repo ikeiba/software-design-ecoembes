@@ -4,6 +4,7 @@ package es.deusto.sd.client.proxies;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
@@ -14,6 +15,7 @@ import es.deusto.sd.client.data.Credentials;
 
 
 @Service
+@Primary
 public class RestTemplateServiceProxy implements IEcoembesServiceProxy{
 
     private final RestTemplate restTemplate;
