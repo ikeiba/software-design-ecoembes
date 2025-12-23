@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Capacidad de Plantas - Ecoembes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-success mb-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/dashboard}">Ecoembes Management</a>
+        <a th:href="@{/logout}" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h2 class="mb-4 text-center text-success">Capacidad de Plantas de Reciclaje</h2>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form th:action="@{/plants/capacity}" method="get" class="row g-3 align-items-end justify-content-center">
+                <div class="col-md-4">
+                    <label for="date" class="form-label">Consultar disponibilidad para el día:</label>
+                    <input type="date" class="form-control" id="date" name="date" 
+                           th:value="${selectedDate}" required>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger" role="alert">
+        <span th:text="${error}"></span>
+    </div>
+
+    <div th:if="${capacities != null}" class="row justify-content-center">
+        <div class="col-md-8">
+            <div th:if="${capacities.empty}" class="alert alert-warning text-center">
+                No hay información de plantas disponible para esta fecha.
+            </div>
+
+            <div th:unless="${capacities.empty}" class="card shadow-sm">
+                <div class="card-body p-0">
+                    <table class="table table-striped table-hover mb-0 text-center">
+                        <thead class="table-success">
+                            <tr>
+                                <th>ID Planta</th>
+                                <th>Capacidad Disponible (Toneladas)</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:foreach="plant : ${capacities}">
+                                <td th:text="${plant.plantId}" class="fw-bold">1</td>
+                                <td th:text="${plant.currentCapacity}">50.0</td>
+                                <td>
+                                    <span th:if="${plant.currentCapacity > 10}" class="badge bg-success">DISPONIBLE</span>
+                                    <span th:if="${plant.currentCapacity <= 10}" class="badge bg-danger">SATURADA</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4 text-center">
+        <a th:href="@{/dashboard}" class="btn btn-link text-decoration-none">← Volver al Panel Principal</a>
+    </div>
+</div>
+
+</body>
+</html>

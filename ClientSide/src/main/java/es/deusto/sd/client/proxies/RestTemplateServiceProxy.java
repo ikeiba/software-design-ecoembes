@@ -1,6 +1,7 @@
-
 package es.deusto.sd.client.proxies;
 
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -8,13 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import es.deusto.sd.client.data.Article;
-import es.deusto.sd.client.data.Category;
-import es.deusto.sd.client.data.Credentials;
-
+import es.deusto.sd.client.data.*;
 
 @Service
-public class RestTemplateServiceProxy implements IEcoembesServiceProxy{
+public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
 
     private final RestTemplate restTemplate;
 
@@ -26,95 +24,71 @@ public class RestTemplateServiceProxy implements IEcoembesServiceProxy{
     }
 
     @Override
-    public String login(Credentials credentials) {
+    public String login(Login credentials) {
         String url = apiBaseUrl + "/auth/login";
-        
         try {
             return restTemplate.postForObject(url, credentials, String.class);
         } catch (HttpStatusCodeException e) {
-            switch (e.getStatusCode().value()) {
-                case 401 -> throw new RuntimeException("Login failed: Invalid credentials.");
-                default -> throw new RuntimeException("Login failed: " + e.getStatusText());
-            }
+            throw new RuntimeException("Login fallido: " + e.getStatusText());
         }
     }
-    
-    @Override    
+
+    @Override
     public void logout(String token) {
         String url = apiBaseUrl + "/auth/logout";
-        
         try {
             restTemplate.postForObject(url, token, Void.class);
         } catch (HttpStatusCodeException e) {
-            switch (e.getStatusCode().value()) {
-                case 401 -> throw new RuntimeException("Logout failed: Invalid token.");
-                default -> throw new RuntimeException("Logout failed: " + e.getStatusText());
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<Category> getAllCategories() {
-        String url = apiBaseUrl + "/auctions/categories";
-        
-        try {
-            return restTemplate.getForObject(url, List.class);
-        } catch (HttpStatusCodeException e) {
-            switch (e.getStatusCode().value()) {
-                case 404 -> throw new RuntimeException("No categories found.");
-                default -> throw new RuntimeException("Failed to retrieve categories: " + e.getStatusText());
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<Article> getArticlesByCategory(String categoryName, String currency) {
-        String url = apiBaseUrl + "/auctions/categories/" + categoryName + "/articles?currency=" + currency;
-        
-        try {
-            return restTemplate.getForObject(url, List.class);
-        } catch (HttpStatusCodeException e) {
-            switch (e.getStatusCode().value()) {
-                case 404 -> throw new RuntimeException("Category not found: " + categoryName);
-                case 400 -> throw new RuntimeException("Invalid currency: " + currency);
-                default -> throw new RuntimeException("Failed to retrieve articles: " + e.getStatusText());
-            }
+            throw new RuntimeException("Logout fallido.");
         }
     }
 
     @Override
-    public Article getArticleDetails(Long articleId, String currency) {
-        String url = apiBaseUrl + "/auctions/articles/" + articleId + "/details?currency=" + currency;
-        
+    public Dumpster createDumpster(NewDumpster newDumpster) {
+        String url = apiBaseUrl + "/ecoembes/dumpsters";
         try {
-            return restTemplate.getForObject(url, Article.class);
+            return restTemplate.postForObject(url, newDumpster, Dumpster.class);
         } catch (HttpStatusCodeException e) {
-            switch (e.getStatusCode().value()) {
-                case 404 -> throw new RuntimeException("Article not found: ID " + articleId);
-                case 400 -> throw new RuntimeException("Invalid currency: " + currency);
-                default -> throw new RuntimeException("Failed to retrieve article details: " + e.getStatusText());
-            }
+            throw new RuntimeException("Error creando contenedor: " + e.getResponseBodyAsString());
         }
     }
-    
+
     @Override
-    public void makeBid(Long articleId, Float amount, String currency, String token) {
-    	String url = apiBaseUrl + "/auctions/articles/" + articleId + "/bid?amount=" +  amount + "&currency=" + currency;
+    public List<DumpsterStatus> getDumpsterStatus(String postalCode, LocalDate date) {
+        // Spring convierte automáticamente LocalDate.toString() al formato ISO (yyyy-mm-dd)
+        // que es lo que espera tu servidor.
+        String url = apiBaseUrl + "/ecoembes/dumpsters/status?postalCode=" + postalCode + "&date=" + date;
         
         try {
-            restTemplate.postForObject(url, token, Void.class);
+            DumpsterStatus[] response = restTemplate.getForObject(url, DumpsterStatus[].class);
+            return Arrays.asList(response);
         } catch (HttpStatusCodeException e) {
-            switch (e.getStatusCode().value()) {
-                case 401 -> throw new RuntimeException("User not authenticated");
-                case 404 -> throw new RuntimeException("Article not found");
-                case 400 -> throw new RuntimeException("Invalid currency: " + currency);
-                case 409 -> throw new RuntimeException("Bid amount must be greater than the current price");
-                case 204 -> { /* Successful bid */ }
-                case 500 -> throw new RuntimeException("Internal server error while processing bid");
-                default -> throw new RuntimeException("Bid failed with status code: " + e.getStatusCode());
-            }
+            if (e.getStatusCode().value() == 204) return List.of(); // Sin contenido
+            throw new RuntimeException("Error obteniendo estado: " + e.getStatusText());
+        }
+    }
+
+    @Override
+    public List<PlantCapacity> getPlantsCapacity(LocalDate date) {
+        String url = apiBaseUrl + "/ecoembes/plants/capacity?date=" + date;
+        
+        try {
+            PlantCapacity[] response = restTemplate.getForObject(url, PlantCapacity[].class);
+            return Arrays.asList(response);
+        } catch (HttpStatusCodeException e) {
+            if (e.getStatusCode().value() == 204) return List.of();
+            throw new RuntimeException("Error obteniendo capacidades.");
+        }
+    }
+
+    @Override
+    public Assignment assignDumpster(Assignment assignment) {
+        String url = apiBaseUrl + "/ecoembes/assignments";
+        try {
+            return restTemplate.postForObject(url, assignment, Assignment.class);
+        } catch (HttpStatusCodeException e) {
+            // Capturamos el error 400 o 500 para mostrar el mensaje del servidor si es posible
+            throw new RuntimeException("Error en asignación: " + e.getResponseBodyAsString());
         }
     }
 }

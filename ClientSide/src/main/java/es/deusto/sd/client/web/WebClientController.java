@@ -1,5 +1,8 @@
 package es.deusto.sd.client.web;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,136 +10,178 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import es.deusto.sd.client.data.Article;
-import es.deusto.sd.client.data.Credentials;
+import es.deusto.sd.client.data.Assignment;
+import es.deusto.sd.client.data.Dumpster;
+import es.deusto.sd.client.data.DumpsterStatus;
+import es.deusto.sd.client.data.Login;
+import es.deusto.sd.client.data.NewDumpster;
+import es.deusto.sd.client.data.PlantCapacity;
 import es.deusto.sd.client.proxies.IEcoembesServiceProxy;
-import jakarta.servlet.http.HttpServletRequest;
-
 
 @Controller
 public class WebClientController {
 
-	@Autowired
-	private IEcoembesServiceProxy ecoembesServiceProxy;
+    @Autowired
+    private IEcoembesServiceProxy ecoembesServiceProxy;
 
-	private String token; // Stores the session token
+    private String token; // Token de sesión en memoria
 
-	// Add current URL and token to all views
-	@ModelAttribute
-	public void addAttributes(Model model, HttpServletRequest request) {
-		String currentUrl = ServletUriComponentsBuilder.fromRequestUri(request).toUriString();
-		model.addAttribute("currentUrl", currentUrl); // Makes current URL available in all templates
-		model.addAttribute("token", token); // Makes token available in all templates
-	}
+    @ModelAttribute("token")
+    public String getToken() {
+        return token;
+    }
 
-	@GetMapping("/")
-	public String home(Model model) {
-		return "login";
-	}
+    // ================== LOGIN / HOME ==================
 
-	@GetMapping("/login")
-	public String showLoginPage(@RequestParam(value = "redirectUrl", required = false) String redirection,
-								Model model) {
-		// Add redirectUrl to the model if needed
-		model.addAttribute("redirectUrl", redirection);
-		return "login"; // Return your login template
-	}
+    @GetMapping("/")
+    public String home(Model model) {
+        if (token != null) {
+            return "redirect:/dashboard";
+        }
+        return "login"; // Si no hay token, mostramos login
+    }
 
-	@PostMapping("/login")
-	public String performLogin(@RequestParam("email") String userEmail, 
-							   @RequestParam("password") String userPassword,
-							   @RequestParam(value = "redirectUrl", required = false) String redirection, 
-							   Model model) {
-		Credentials credentials = new Credentials(userEmail, userPassword);
+    @PostMapping("/login")
+    public String login(@RequestParam("email") String email, 
+                        @RequestParam("password") String password, 
+                        Model model, 
+                        RedirectAttributes redirectAttributes) {
+        try {
+            Login creds = new Login(email, password);
+            this.token = ecoembesServiceProxy.login(creds);
+            return "redirect:/dashboard";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error de login: " + e.getMessage());
+            return "login";
+        }
+    }
 
-		try {
-			token = ecoembesServiceProxy.login(credentials);
+    @GetMapping("/logout")
+    public String logout(RedirectAttributes redirectAttributes) {
+        try {
+            if (token != null) {
+                ecoembesServiceProxy.logout(token);
+            }
+            token = null;
+            redirectAttributes.addFlashAttribute("message", "Has cerrado sesión correctamente.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al cerrar sesión.");
+        }
+        return "redirect:/";
+    }
 
-			// Redirect to the original page or root if redirectUrl is null
-			return "dashboard";
-		} catch (RuntimeException e) {
-			model.addAttribute("errorMessage", "Login failed: " + e.getMessage());
-			return "login"; // Return to login page with error message
-		}
-	}
+    // ================== DASHBOARD ==================
 
-	@GetMapping("/logout")
-	public String performLogout(@RequestParam(value = "redirectUrl", defaultValue = "/") String redirection,
-								Model model) {
-		try {
-			ecoembesServiceProxy.logout(token);
-			token = null; // Clear the token after logout
-			model.addAttribute("successMessage", "Logout successful.");
-		} catch (RuntimeException e) {
-			model.addAttribute("errorMessage", "Logout failed: " + e.getMessage());
-		}
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        if (token == null) return "redirect:/";
+        return "dashboard"; // Renderiza dashboard.html (Menú principal)
+    }
 
-		// Redirect to the specified URL after logout
-		return "redirect:" + redirection;
-	}
+    // ================== GESTIÓN DE CONTENEDORES ==================
 
-	@GetMapping("/category/{name}")
-	public String getCategoryArticles(@PathVariable("name") String categoryName,
-									  @RequestParam(value = "currency", defaultValue = "EUR") String selectedCurrency, 
-									  Model model) {
-		List<Article> articles;
+    @GetMapping("/dumpsters/new")
+    public String showCreateDumpsterForm(Model model) {
+        if (token == null) return "redirect:/";
+        model.addAttribute("newDumpster", new NewDumpster());
+        return "create-dumpster"; // Renderiza create-dumpster.html
+    }
 
-		try {
-			articles = ecoembesServiceProxy.getArticlesByCategory(categoryName, selectedCurrency);
-			model.addAttribute("articles", articles);
-			model.addAttribute("categoryName", categoryName);
-			model.addAttribute("selectedCurrency", selectedCurrency);
-		} catch (RuntimeException e) {
-			model.addAttribute("errorMessage", "Failed to load articles for category: " + e.getMessage());
-			model.addAttribute("articles", null);
-			model.addAttribute("categoryName", categoryName);
-			model.addAttribute("selectedCurrency", "EUR");
-		}
+    @PostMapping("/dumpsters/new")
+    public String createDumpster(@ModelAttribute NewDumpster newDumpster, 
+                                 RedirectAttributes redirectAttributes) {
+        if (token == null) return "redirect:/";
+        try {
+            ecoembesServiceProxy.createDumpster(newDumpster);
+            redirectAttributes.addFlashAttribute("message", "Contenedor creado con éxito.");
+            return "redirect:/dashboard";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al crear contenedor: " + e.getMessage());
+            return "redirect:/dumpsters/new";
+        }
+    }
 
-		return "category";
-	}
+    // ================== CONSULTA DE ESTADO (Por C.P. y Fecha) ==================
 
-	@GetMapping("/article/{id}")
-	public String getArticleDetails(@PathVariable("id") Long productId,
-									@RequestParam(value = "currency", defaultValue = "EUR") String selectedCurrency,
-									Model model) {
-		Article article;
+    @GetMapping("/dumpsters/status")
+    public String showDumpsterStatus(@RequestParam(value = "postalCode", required = false) String postalCode,
+                                     @RequestParam(value = "date", required = false) String dateStr,
+                                     Model model) {
+        if (token == null) return "redirect:/";
 
-		try {
-			article = ecoembesServiceProxy.getArticleDetails(productId, selectedCurrency);
-			model.addAttribute("article", article);
-			model.addAttribute("selectedCurrency", selectedCurrency);
-		} catch (RuntimeException e) {
-			model.addAttribute("errorMessage", "Failed to load article details: " + e.getMessage());
-			model.addAttribute("article", null);
-			model.addAttribute("selectedCurrency", "EUR");
-		}
+        if (postalCode != null && !postalCode.isBlank() && dateStr != null && !dateStr.isBlank()) {
+            try {
+                LocalDate date = LocalDate.parse(dateStr);
+                List<DumpsterStatus> dumpsters = ecoembesServiceProxy.getDumpsterStatus(postalCode, date);
+                model.addAttribute("dumpsters", dumpsters);
+                model.addAttribute("selectedDate", dateStr);
+                model.addAttribute("selectedZip", postalCode);
+            } catch (DateTimeParseException e) {
+                model.addAttribute("error", "Formato de fecha inválido.");
+            } catch (Exception e) {
+                model.addAttribute("error", "Error al obtener estado: " + e.getMessage());
+            }
+        }
+        return "dumpster-status"; // Renderiza dumpster-status.html
+    }
 
-		return "article";
-	}
+    // ================== CAPACIDAD DE PLANTAS ==================
 
-	@PostMapping("/bid")
-	public String makeBid(@RequestParam("id") Long productId, 
-						  @RequestParam("amount") Float bidAmount,
-						  @RequestParam(value = "currency", defaultValue = "EUR") String selectedCurrency,
-						  Model model,
-						  RedirectAttributes redirectAttributes) {
-		try {
-			ecoembesServiceProxy.makeBid(productId, bidAmount, selectedCurrency, token);
-			// RedirectAttributes are used to pass attributes to the redirected page
-			// Add a success message to be displayed in the article view
-			redirectAttributes.addFlashAttribute("successMessage", "Bid placed successfully!");
-		} catch (RuntimeException e) {
-			// Add an error message to be displayed in the article view
-			redirectAttributes.addFlashAttribute("errorMessage", "Failed to place bid: " + e.getMessage());
-		}
+    @GetMapping("/plants/capacity")
+    public String showPlantCapacity(@RequestParam(value = "date", required = false) String dateStr,
+                                    Model model) {
+        if (token == null) return "redirect:/";
 
-		return "redirect:/article/" + productId + "?currency=" + selectedCurrency;
-	}
+        // Si no se pasa fecha, usamos la de hoy por defecto para mostrar algo
+        LocalDate date = (dateStr != null && !dateStr.isBlank()) ? LocalDate.parse(dateStr) : LocalDate.now();
+        
+        try {
+            List<PlantCapacity> capacities = ecoembesServiceProxy.getPlantsCapacity(date);
+            model.addAttribute("capacities", capacities);
+            model.addAttribute("selectedDate", date.toString());
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al obtener capacidades: " + e.getMessage());
+        }
+
+        return "plant-capacity"; // Renderiza plant-capacity.html
+    }
+
+    // ================== ASIGNACIÓN (DUMPSTER -> PLANTA) ==================
+
+    @GetMapping("/assignments/new")
+    public String showAssignmentForm(Model model) {
+        if (token == null) return "redirect:/";
+        
+        // Inicializamos un  vacío para el formulario
+        Assignment assignment = new Assignment();
+        // Por defecto, ponemos la fecha de hoy para facilitar al usuario
+        assignment.setDate(LocalDate.now()); 
+        
+        model.addAttribute("assignment", assignment);
+        return "create-assignment"; // Renderiza create-assignment.html
+    }
+
+    @PostMapping("/assignments/new")
+    public String createAssignment(@ModelAttribute Assignment assignment,
+                                   RedirectAttributes redirectAttributes) {
+        if (token == null) return "redirect:/";
+
+        try {
+            // Importante: Inyectar el token en el  antes de enviarlo
+            // ya que el servidor lo espera dentro del objeto JSON.
+            assignment.setToken(this.token);
+
+            ecoembesServiceProxy.assignDumpster(assignment);
+            
+            redirectAttributes.addFlashAttribute("message", "Asignación realizada con éxito.");
+            return "redirect:/dashboard";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Fallo en la asignación: " + e.getMessage());
+            return "redirect:/assignments/new";
+        }
+    }
 }
