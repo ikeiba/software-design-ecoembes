@@ -18,7 +18,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 
-// Importa las entidades de RECICLAJE
+import es.deusto.sd.ecoembes.dao.AssignmentRepository;
+import es.deusto.sd.ecoembes.dao.DumpsterRepository;
+import es.deusto.sd.ecoembes.dao.EmployeeRepository;
+import es.deusto.sd.ecoembes.dao.RecyclingPlantRepository;
 import es.deusto.sd.ecoembes.entity.Assignment;
 import es.deusto.sd.ecoembes.entity.Dumpster;
 import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;

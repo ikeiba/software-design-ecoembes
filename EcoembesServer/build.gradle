@@ -29,4 +29,8 @@ dependencies {
 
 	// H2 Database for in-memory database
 	runtimeOnly 'com.h2database:h2'
+
+	//dependencia para enviar emails 
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
