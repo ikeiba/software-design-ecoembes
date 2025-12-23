@@ -15,19 +15,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 
-// Importa las entidades de RECICLAJE
+import es.deusto.sd.ecoembes.dao.AssignmentRepository;
+import es.deusto.sd.ecoembes.dao.DumpsterRepository;
+import es.deusto.sd.ecoembes.dao.EmployeeRepository;
+import es.deusto.sd.ecoembes.dao.RecyclingPlantRepository;
 import es.deusto.sd.ecoembes.entity.Assignment;
 import es.deusto.sd.ecoembes.entity.Dumpster;
 import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;
 import es.deusto.sd.ecoembes.entity.Employee;
 import es.deusto.sd.ecoembes.entity.FillLevel;
 import es.deusto.sd.ecoembes.entity.RecyclingPlant;
-
-// Importa los repositorios
-import es.deusto.sd.ecoembes.dao.AssignmentRepository;
-import es.deusto.sd.ecoembes.dao.DumpsterRepository;
-import es.deusto.sd.ecoembes.dao.EmployeeRepository;
-import es.deusto.sd.ecoembes.dao.RecyclingPlantRepository;
 
 @Configuration
 public class DataInitializer {
@@ -54,10 +51,12 @@ public class DataInitializer {
 			Employee emp3 = new Employee("Iker Ibarrola", "iker.mendoza@ecoembes.com", "password789");
 			Employee emp4 = new Employee("Nerea Agirre", "nerea.agirre@ecoembes.com", "password321");
 			Employee emp5 = new Employee("Bobi Gomez", "a", "a");
+			Employee emp6 = new Employee("David", "david.r@opendeusto.es", "a");
+
 
 			
 			// Save employees - IDs will be auto-generated
-			employeeRepository.saveAll(List.of(emp1, emp2, emp3, emp4, emp5));
+			employeeRepository.saveAll(List.of(emp1, emp2, emp3, emp4, emp5, emp6));
 			logger.info("✓ 5 Employees saved!");
 
 

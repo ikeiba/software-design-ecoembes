@@ -1,8 +1,10 @@
 package es.deusto.sd.ecoembes.dao;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import es.deusto.sd.ecoembes.entity.Employee;
@@ -10,4 +12,8 @@ import es.deusto.sd.ecoembes.entity.Employee;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByEmail(String email);
+    
+    // Devuelve la lista de todos los emails
+    @Query("SELECT e.email FROM Employee e")
+    List<String> findAllEmails();
 }
