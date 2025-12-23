@@ -14,7 +14,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import es.deusto.sd.client.data.Article;
-import es.deusto.sd.client.data.Category;
 import es.deusto.sd.client.data.Credentials;
 import es.deusto.sd.client.proxies.IAuctionsServiceProxy;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,16 +37,7 @@ public class WebClientController {
 
 	@GetMapping("/")
 	public String home(Model model) {
-		List<Category> categories;
-
-		try {
-			categories = auctionsServiceProxy.getAllCategories();
-			model.addAttribute("categories", categories);
-		} catch (RuntimeException e) {
-			model.addAttribute("errorMessage", "Failed to load categories: " + e.getMessage());
-		}
-
-		return "index";
+		return "login";
 	}
 
 	@GetMapping("/login")
@@ -55,7 +45,6 @@ public class WebClientController {
 								Model model) {
 		// Add redirectUrl to the model if needed
 		model.addAttribute("redirectUrl", redirection);
-
 		return "login"; // Return your login template
 	}
 
@@ -70,7 +59,7 @@ public class WebClientController {
 			token = auctionsServiceProxy.login(credentials);
 
 			// Redirect to the original page or root if redirectUrl is null
-			return "redirect:" + (redirection != null && !redirection.isEmpty() ? redirection : "/");
+			return "dashboard";
 		} catch (RuntimeException e) {
 			model.addAttribute("errorMessage", "Login failed: " + e.getMessage());
 			return "login"; // Return to login page with error message

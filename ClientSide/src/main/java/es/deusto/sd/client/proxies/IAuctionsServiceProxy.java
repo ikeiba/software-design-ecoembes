@@ -27,3 +27,4 @@ public interface IAuctionsServiceProxy {
 	// Method to place a bid on an article
 	void makeBid(Long articleId, Float amount, String currency, String token);
 }
+

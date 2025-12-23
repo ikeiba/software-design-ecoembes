@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
  * WebClientApplication class is the main class for the web client application.
  */
 
-@SpringBootApplication(scanBasePackages = {"es.deusto.sd.auctions"})
+@SpringBootApplication(scanBasePackages = {"es.deusto.sd"})
 public class WebClientApplication {
 
     public static void main(String[] args) {
