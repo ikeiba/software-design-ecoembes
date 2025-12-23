@@ -28,12 +28,6 @@ import es.deusto.sd.ecoembes.entity.DumpsterUsageRecord;
 import es.deusto.sd.ecoembes.entity.Employee;
 import es.deusto.sd.ecoembes.entity.FillLevel;
 import es.deusto.sd.ecoembes.entity.RecyclingPlant;
-
-// Importa los repositorios
-import es.deusto.sd.ecoembes.dao.AssignmentRepository;
-import es.deusto.sd.ecoembes.dao.DumpsterRepository;
-import es.deusto.sd.ecoembes.dao.EmployeeRepository;
-import es.deusto.sd.ecoembes.dao.RecyclingPlantRepository;
 import es.deusto.sd.ecoembes.service.EcoembesService;
 
 @Configuration
@@ -76,8 +70,9 @@ public class DataInitializer {
 			Employee emp6 = new Employee("Ane Lasa", "ane.lasa@ecoembes.com", "password654");
 			Employee emp7 = new Employee("Uxue Murua", "uxue.murua@ecoembes.com", "password987");
 			Employee emp8 = new Employee("Martin Ruiz", "martin.ruiz@ecoembes.com", "password852");
-
-			List<Employee> employees = List.of(emp1, emp2, emp3, emp4, emp5, emp6, emp7, emp8);
+			Employee emp9 = new Employee("David", "david.r@opendeusto.es", "a");
+			
+			List<Employee> employees = List.of(emp1, emp2, emp3, emp4, emp5, emp6, emp7, emp8, emp9);
 
 			// Save employees - IDs will be auto-generated
 			employeeRepository.saveAll(employees);
