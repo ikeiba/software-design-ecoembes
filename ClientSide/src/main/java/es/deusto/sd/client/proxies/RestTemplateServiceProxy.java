@@ -61,7 +61,7 @@ public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
         
         try {
             DumpsterStatus[] response = restTemplate.getForObject(url, DumpsterStatus[].class);
-            return Arrays.asList(response);
+            return response != null ? Arrays.asList(response) : List.of(); // Evita NPE
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode().value() == 204) return List.of(); // Sin contenido
             throw new RuntimeException("Error obteniendo estado: " + e.getStatusText());
@@ -74,7 +74,7 @@ public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
         
         try {
             PlantCapacity[] response = restTemplate.getForObject(url, PlantCapacity[].class);
-            return Arrays.asList(response);
+            return response != null ? Arrays.asList(response) : List.of(); // Evita NPE
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode().value() == 204) return List.of();
             throw new RuntimeException("Error obteniendo capacidades.");

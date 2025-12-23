@@ -2,7 +2,6 @@ package es.deusto.sd.client.web;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import es.deusto.sd.client.data.Assignment;
-import es.deusto.sd.client.data.Dumpster;
 import es.deusto.sd.client.data.DumpsterStatus;
 import es.deusto.sd.client.data.Login;
 import es.deusto.sd.client.data.NewDumpster;

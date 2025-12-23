@@ -57,15 +57,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:foreach="d : ${dumpsters}">
+                        <tr th:each="d : ${dumpsters}">
                             <td th:text="${d.id}">1</td>
                             <td th:text="${d.location}">Gran Vía 10</td>
                             <td>
                                 <span th:if="${d.fillLevel == 'GREEN'}" class="badge bg-success">VACÍO (VERDE)</span>
                                 <span th:if="${d.fillLevel == 'ORANGE'}" class="badge bg-warning text-dark">MEDIO (NARANJA)</span>
                                 <span th:if="${d.fillLevel == 'RED'}" class="badge bg-danger">LLENO (ROJO)</span>
-                                <span th:unless="${d.fillLevel == 'GREEN' or d.fillLevel == 'ORANGE' or d.fillLevel == 'RED'}" 
-                                      th:text="${d.fillLevel}" class="badge bg-secondary"></span>
+                                
+                                <span th:if="${d.fillLevel != 'GREEN' and d.fillLevel != 'ORANGE' and d.fillLevel != 'RED'}" 
+                                    th:text="${d.fillLevel != null ? d.fillLevel : 'SIN DATOS'}" class="badge bg-secondary"></span>
                             </td>
                         </tr>
                     </tbody>
