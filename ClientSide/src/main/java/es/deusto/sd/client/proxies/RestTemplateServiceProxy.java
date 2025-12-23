@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
@@ -12,7 +13,12 @@ import org.springframework.web.client.RestTemplate;
 import es.deusto.sd.client.data.*;
 
 @Service
+<<<<<<< HEAD
 public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
+=======
+@Primary
+public class RestTemplateServiceProxy implements IEcoembesServiceProxy{
+>>>>>>> f18b4f60a449f1418a9bc21f4bd9ef83292adc23
 
     private final RestTemplate restTemplate;
 
