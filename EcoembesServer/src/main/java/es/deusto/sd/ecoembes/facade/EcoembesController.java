@@ -318,7 +318,7 @@ public class EcoembesController {
 
     private PlantCapacityDTO toPlantCapacityDTO(RecyclingPlant plant, LocalDate date) {
         double availableCapacity = ecoembesService.calculatePlantCapacity(plant.getId(), date);
-        return new PlantCapacityDTO(plant.getId(), availableCapacity);
+        return new PlantCapacityDTO(plant.getId(), plant.getName(),availableCapacity);
     }
 
     private AssignmentDTO toAssignmentDTO(Assignment assignment) {

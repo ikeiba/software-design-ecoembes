@@ -29,7 +29,7 @@ public class PlasSBController {
     LocalDate date = LocalDate.parse(dateStr);
     double capacity = computeCapacity(date);
     System.out.println("PlasSB (HTTP): capacity request for " + dateStr + " -> " + capacity);
-    return capacity;
+    return Math.floor(capacity * 100.0) / 100.0;
   }
 
   @PostMapping(path = "/assign", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

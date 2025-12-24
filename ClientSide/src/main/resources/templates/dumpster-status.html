@@ -61,12 +61,12 @@
                             <td th:text="${d.dumpsterId}">1</td>
                             <td th:text="${d.location}">Gran Vía 10</td>
                             <td>
-                                <span th:if="${d.currentStatus == 'GREEN'}" class="badge bg-success">VACÍO (VERDE)</span>
-                                <span th:if="${d.currentStatus == 'ORANGE'}" class="badge bg-warning text-dark">MEDIO (NARANJA)</span>
-                                <span th:if="${d.currentStatus == 'RED'}" class="badge bg-danger">LLENO (ROJO)</span>
-                                
-                                <span th:if="${d.currentStatus != 'GREEN' and d.currentStatus != 'ORANGE' and d.currentStatus != 'RED'}" 
-                                    th:text="${d.currentStatus != null ? d.currentStatus : 'SIN DATOS'}" class="badge bg-secondary"></span>
+                                <span th:switch="${d.currentStatus}">
+                                    <span th:case="'GREEN'" class="badge bg-success">room for more containers</span>
+                                    <span th:case="'ORANGE'" class="badge bg-warning text-dark">limited space</span>
+                                    <span th:case="'RED'" class="badge bg-danger">full</span>
+                                    <span th:case="*" th:text="${d.currentStatus != null ? d.currentStatus : 'NO DATA'}" class="badge bg-secondary"></span>
+                                </span>
                             </td>
                         </tr>
                     </tbody>

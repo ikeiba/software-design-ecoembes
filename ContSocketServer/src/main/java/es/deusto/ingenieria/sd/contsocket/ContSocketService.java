@@ -93,7 +93,7 @@ public class ContSocketService extends Thread {
 
     private double getCapacity(LocalDate date) {
             
-        return capacitymap.getOrDefault(date, 1000.0);
+        return Math.floor(capacitymap.getOrDefault(date, 1000.0)*100)/100;
           
     }
 

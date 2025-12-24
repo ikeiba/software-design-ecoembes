@@ -48,6 +48,7 @@
                         <thead class="table-success">
                             <tr>
                                 <th>ID Planta</th>
+                                <th>Nombre Planta</th>
                                 <th>Capacidad Disponible (Toneladas)</th>
                                 <th>Estado</th>
                             </tr>
@@ -55,6 +56,7 @@
                         <tbody>
                             <tr th:each="plant : ${capacities}">
                                 <td th:text="${plant.plantId}" class="fw-bold">1</td>
+                                <td th:text="${plant.plantName}"class="fw-bold">1</td>
                                 <td th:text="${plant.availableCapacityTons != null ? plant.availableCapacityTons : 0}">50.0</td>
                                 <td>
                                     <span th:if="${plant.availableCapacityTons != null and plant.availableCapacityTons > 10}" class="badge bg-success">DISPONIBLE</span>
