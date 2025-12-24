@@ -9,13 +9,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import es.deusto.sd.client.data.*;
+import es.deusto.sd.client.data.Assignment;
+import es.deusto.sd.client.data.Dumpster;
+import es.deusto.sd.client.data.DumpsterStatus;
+import es.deusto.sd.client.data.Login;
+import es.deusto.sd.client.data.NewDumpster;
+import es.deusto.sd.client.data.PlantCapacity;
 
 @Service
 public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
 
     private final RestTemplate restTemplate;
-
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RestTemplateServiceProxy.class);
     @Value("${api.base.url}")
     private String apiBaseUrl;
 
@@ -61,6 +66,11 @@ public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
         
         try {
             DumpsterStatus[] response = restTemplate.getForObject(url, DumpsterStatus[].class);
+            if (response != null) {
+                Arrays.stream(response).forEach(ds -> logger.info("DumpsterStatus recibido: {}", ds));
+            } else {
+                logger.info("Server Response to get Dumpster status: response is null");
+            }
             return response != null ? Arrays.asList(response) : List.of(); // Evita NPE
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode().value() == 204) return List.of(); // Sin contenido

@@ -3,6 +3,14 @@ package es.deusto.sd.ecoembes.dto;
 import es.deusto.sd.ecoembes.entity.FillLevel;
 
 public class DumpsterStatusDTO {
+    @Override
+    public String toString() {
+      return "DumpsterStatusDTO{" +
+              "dumpsterId=" + dumpsterId +
+              ", location='" + location + '\'' +
+              ", currentStatus=" + currentStatus +
+              '}';
+    }
   private Long dumpsterId;
   private String location;
   private FillLevel currentStatus;

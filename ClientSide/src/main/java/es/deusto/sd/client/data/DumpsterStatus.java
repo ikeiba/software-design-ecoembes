@@ -1,24 +1,50 @@
 package es.deusto.sd.client.data;
 
 public class DumpsterStatus {
-    private Long id;
-    private String location;
-    private String fillLevel; // "GREEN", "ORANGE", "RED"
-
-    public DumpsterStatus() {}
-
-    public DumpsterStatus(Long id, String location, String fillLevel) {
-        this.id = id;
-        this.location = location;
-        this.fillLevel = fillLevel;
+    @Override
+    public String toString() {
+      return "DumpsterStatus{" +
+              "dumpsterId=" + dumpsterId +
+              ", location='" + location + '\'' +
+              ", currentStatus=" + currentStatus +
+              '}';
     }
+  private Long dumpsterId;
+  private String location;
+  private FillLevel currentStatus;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+  // Constructors
+  public DumpsterStatus() {
+  }
 
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
+  public DumpsterStatus(Long dumpsterId, String location, FillLevel currentStatus) {
+    this.dumpsterId = dumpsterId;
+    this.location = location;
+    this.currentStatus = currentStatus;
+  }
 
-    public String getFillLevel() { return fillLevel; }
-    public void setFillLevel(String fillLevel) { this.fillLevel = fillLevel; }
+  // Getters and Setters
+  public Long getDumpsterId() {
+    return dumpsterId;
+  }
+
+  public void setDumpsterId(Long dumpsterId) {
+    this.dumpsterId = dumpsterId;
+  }
+
+  public String getLocation() {
+    return location;
+  }
+
+  public void setLocation(String location) {
+    this.location = location;
+  }
+
+  public FillLevel getCurrentStatus() {
+    return currentStatus;
+  }
+
+  public void setCurrentStatus(FillLevel currentStatus) {
+    this.currentStatus = currentStatus;
+  }
 }

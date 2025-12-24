@@ -38,8 +38,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/ecoembes")
 @Tag(name = "Ecoembes Controller", description = "Operations related to dumpsters and recycling plants")
 public class EcoembesController {
-
     private static final Logger logger = LoggerFactory.getLogger(EcoembesController.class);
+
 
     //! AQUI HAY QUE PONER VARIOS SERVICES PORQUE CADA UNO VA A GESTIONAR UNA PARTE DIFERENTE
     private final EcoembesService ecoembesService;
@@ -150,10 +150,13 @@ public class EcoembesController {
             List<DumpsterStatusDTO> statusList = dumpsters.stream()
                 .map(dumpster -> toDumpsterStatusDTO(dumpster, date))
                 .toList();
-
+            
             if (statusList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
+
+                // Log each DumpsterStatusDTO using toString()
+                statusList.forEach(dto -> logger.info("DumpsterStatusDTO: {}", dto));
 
             return new ResponseEntity<>(statusList, HttpStatus.OK);
         } catch (Exception e) {

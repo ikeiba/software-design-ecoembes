@@ -58,15 +58,15 @@
                     </thead>
                     <tbody>
                         <tr th:each="d : ${dumpsters}">
-                            <td th:text="${d.id}">1</td>
+                            <td th:text="${d.dumpsterId}">1</td>
                             <td th:text="${d.location}">Gran Vía 10</td>
                             <td>
-                                <span th:if="${d.fillLevel == 'GREEN'}" class="badge bg-success">VACÍO (VERDE)</span>
-                                <span th:if="${d.fillLevel == 'ORANGE'}" class="badge bg-warning text-dark">MEDIO (NARANJA)</span>
-                                <span th:if="${d.fillLevel == 'RED'}" class="badge bg-danger">LLENO (ROJO)</span>
+                                <span th:if="${d.currentStatus == 'GREEN'}" class="badge bg-success">VACÍO (VERDE)</span>
+                                <span th:if="${d.currentStatus == 'ORANGE'}" class="badge bg-warning text-dark">MEDIO (NARANJA)</span>
+                                <span th:if="${d.currentStatus == 'RED'}" class="badge bg-danger">LLENO (ROJO)</span>
                                 
-                                <span th:if="${d.fillLevel != 'GREEN' and d.fillLevel != 'ORANGE' and d.fillLevel != 'RED'}" 
-                                    th:text="${d.fillLevel != null ? d.fillLevel : 'SIN DATOS'}" class="badge bg-secondary"></span>
+                                <span th:if="${d.currentStatus != 'GREEN' and d.currentStatus != 'ORANGE' and d.currentStatus != 'RED'}" 
+                                    th:text="${d.currentStatus != null ? d.currentStatus : 'SIN DATOS'}" class="badge bg-secondary"></span>
                             </td>
                         </tr>
                     </tbody>
