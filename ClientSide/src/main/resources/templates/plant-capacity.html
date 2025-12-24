@@ -55,11 +55,11 @@
                         <tbody>
                             <tr th:each="plant : ${capacities}">
                                 <td th:text="${plant.plantId}" class="fw-bold">1</td>
-                                <td th:text="${plant.currentCapacity != null ? plant.currentCapacity : 0}">50.0</td>
+                                <td th:text="${plant.availableCapacityTons != null ? plant.availableCapacityTons : 0}">50.0</td>
                                 <td>
-                                    <span th:if="${plant.currentCapacity != null and plant.currentCapacity > 10}" class="badge bg-success">DISPONIBLE</span>
-                                    <span th:if="${plant.currentCapacity != null and plant.currentCapacity <= 10}" class="badge bg-danger">SATURADA</span>
-                                    <span th:if="${plant.currentCapacity == null}" class="badge bg-secondary">DESCONOCIDO</span>
+                                    <span th:if="${plant.availableCapacityTons != null and plant.availableCapacityTons > 10}" class="badge bg-success">DISPONIBLE</span>
+                                    <span th:if="${plant.availableCapacityTons != null and plant.availableCapacityTons <= 10}" class="badge bg-danger">SATURADA</span>
+                                    <span th:if="${plant.availableCapacityTons == null}" class="badge bg-secondary">DESCONOCIDO</span>
                                 </td>
                             </tr>
                         </tbody>
