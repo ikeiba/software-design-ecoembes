@@ -15,7 +15,7 @@
 <nav class="navbar navbar-dark bg-success mb-4">
     <div class="container">
         <span class="navbar-brand mb-0 h1">Ecoembes Management</span>
-        <a th:href="@{/logout}" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+        <a th:href="@{/logout}" class="btn btn-outline-light btn-sm">Logout</a>
     </div>
 </nav>
 
@@ -25,15 +25,15 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <h2 class="mb-4 text-center">Panel de Gestión</h2>
+    <h2 class="mb-4 text-center">Management Dashboard</h2>
 
     <div class="row g-4">
         <div class="col-md-6 col-lg-3">
             <div class="card h-100 card-menu text-center p-3 shadow-sm">
                 <div class="card-body">
                     <div class="icon-lg">🗑️</div>
-                    <h5 class="card-title">Nuevo Contenedor</h5>
-                    <p class="card-text small text-muted">Registrar un nuevo contenedor en el sistema.</p>
+                    <h5 class="card-title">New Dumpster</h5>
+                    <p class="card-text small text-muted">Register a new dumpster in the system.</p>
                     <a th:href="@{/dumpsters/new}" class="stretched-link"></a>
                 </div>
             </div>
@@ -43,8 +43,8 @@
             <div class="card h-100 card-menu text-center p-3 shadow-sm">
                 <div class="card-body">
                     <div class="icon-lg">📊</div>
-                    <h5 class="card-title">Consultar Estado</h5>
-                    <p class="card-text small text-muted">Ver niveles de llenado por Código Postal.</p>
+                    <h5 class="card-title">Check Status</h5>
+                    <p class="card-text small text-muted">View fill levels by Postal Code.</p>
                     <a th:href="@{/dumpsters/status}" class="stretched-link"></a>
                 </div>
             </div>
@@ -54,8 +54,8 @@
             <div class="card h-100 card-menu text-center p-3 shadow-sm">
                 <div class="card-body">
                     <div class="icon-lg">🏭</div>
-                    <h5 class="card-title">Capacidad Plantas</h5>
-                    <p class="card-text small text-muted">Consultar disponibilidad en plantas de reciclaje.</p>
+                    <h5 class="card-title">Plant Capacity</h5>
+                    <p class="card-text small text-muted">Check availability at recycling plants.</p>
                     <a th:href="@{/plants/capacity}" class="stretched-link"></a>
                 </div>
             </div>
@@ -65,8 +65,8 @@
             <div class="card h-100 card-menu text-center p-3 shadow-sm border-success">
                 <div class="card-body">
                     <div class="icon-lg">🚚</div>
-                    <h5 class="card-title text-success">Asignar Ruta</h5>
-                    <p class="card-text small text-muted">Enviar contenedores a una planta específica.</p>
+                    <h5 class="card-title text-success">Assign Route</h5>
+                    <p class="card-text small text-muted">Send dumpsters to a specific plant.</p>
                     <a th:href="@{/assignments/new}" class="stretched-link"></a>
                 </div>
             </div>
