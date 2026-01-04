@@ -53,7 +53,7 @@ public class WebClientController {
             this.token = ecoembesServiceProxy.login(creds);
             return "redirect:/dashboard";
         } catch (Exception e) {
-            model.addAttribute("error", "Error de login: " + e.getMessage());
+            model.addAttribute("error", "Login error: " + e.getMessage());
             return "login";
         }
     }
@@ -65,9 +65,9 @@ public class WebClientController {
                 ecoembesServiceProxy.logout(token);
             }
             token = null;
-            redirectAttributes.addFlashAttribute("message", "Has cerrado sesión correctamente.");
+            redirectAttributes.addFlashAttribute("message", "You have successfully logged out.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al cerrar sesión.");
+            redirectAttributes.addFlashAttribute("error", "Error logging out.");
         }
         return "redirect:/";
     }
@@ -95,10 +95,10 @@ public class WebClientController {
         if (token == null) return "redirect:/";
         try {
             ecoembesServiceProxy.createDumpster(newDumpster);
-            redirectAttributes.addFlashAttribute("message", "Contenedor creado con éxito.");
+            redirectAttributes.addFlashAttribute("message", "Dumpster created successfully.");
             return "redirect:/dashboard";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al crear contenedor: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error creating dumpster: " + e.getMessage());
             return "redirect:/dumpsters/new";
         }
     }
@@ -119,9 +119,9 @@ public class WebClientController {
                 model.addAttribute("selectedDate", dateStr);
                 model.addAttribute("selectedZip", postalCode);
             } catch (DateTimeParseException e) {
-                model.addAttribute("error", "Formato de fecha inválido.");
+                model.addAttribute("error", "Invalid date format.");
             } catch (Exception e) {
-                model.addAttribute("error", "Error al obtener estado: " + e.getMessage());
+                model.addAttribute("error", "Error getting status: " + e.getMessage());
             }
         }
         return "dumpster-status"; // Renderiza dumpster-status.html
@@ -142,7 +142,7 @@ public class WebClientController {
             model.addAttribute("capacities", capacities);
             model.addAttribute("selectedDate", date.toString());
         } catch (Exception e) {
-            model.addAttribute("error", "Error al obtener capacidades: " + e.getMessage());
+            model.addAttribute("error", "Error getting capacities: " + e.getMessage());
         }
 
         return "plant-capacity"; // Renderiza plant-capacity.html
@@ -169,16 +169,16 @@ public class WebClientController {
         if (token == null) return "redirect:/";
 
         try {
-            // Importante: Inyectar el token en el  antes de enviarlo
-            // ya que el servidor lo espera dentro del objeto JSON.
+            // Important: Inject the token into the assignment before sending
+            // because the server expects it inside the JSON object.
             assignment.setToken(this.token);
 
             ecoembesServiceProxy.assignDumpster(assignment);
             
-            redirectAttributes.addFlashAttribute("message", "Asignación realizada con éxito.");
+            redirectAttributes.addFlashAttribute("message", "Assignment completed successfully.");
             return "redirect:/dashboard";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Fallo en la asignación: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Assignment failed: " + e.getMessage());
             return "redirect:/assignments/new";
         }
     }

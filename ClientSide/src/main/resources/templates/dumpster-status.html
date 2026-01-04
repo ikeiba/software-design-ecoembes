@@ -58,16 +58,16 @@
                     </thead>
                     <tbody>
                         <tr th:each="d : ${dumpsters}">
-                            <td th:text="${d.id}">1</td>
-                            <td th:text="${d.location}">Main St 10</td>
-                            <td>
-                                <span th:switch="${d.fillLevel.toString()}"> 
-                                    <span th:case="'GREEN'" class="badge bg-success">EMPTY (GREEN)</span>
-                                    <span th:case="'ORANGE'" class="badge bg-warning text-dark">MEDIUM (ORANGE)</span>
-                                    <span th:case="'RED'" class="badge bg-danger">FULL (RED)</span>
-                                    <span th:case="*" th:text="${d.fillLevel != null ? d.fillLevel : 'NO DATA'}" class="badge bg-secondary"></span>
-                                </span>
-                            </td>
+                                <td th:text="${d.dumpsterId}">1</td>
+                                <td th:text="${d.location}">Main St 10</td>
+                                <td>
+                                    <span th:switch="${d.currentStatus.toString()}"> 
+                                        <span th:case="'GREEN'" class="badge bg-success">EMPTY (GREEN)</span>
+                                        <span th:case="'ORANGE'" class="badge bg-warning text-dark">MEDIUM (ORANGE)</span>
+                                        <span th:case="'RED'" class="badge bg-danger">FULL (RED)</span>
+                                        <span th:case="*" th:text="${d.currentStatus != null ? d.currentStatus : 'NO DATA'}" class="badge bg-secondary"></span>
+                                    </span>
+                                </td>
                         </tr>
                     </tbody>
                 </table>
