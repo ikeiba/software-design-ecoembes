@@ -1,6 +1,7 @@
 package es.deusto.sd.plas.Facade;
 
 
+import java.util.List;
 
 import java.time.LocalDate;
 
@@ -17,6 +18,9 @@ import es.deusto.sd.plas.dao.PlasAssignmentRepository;
 
 @RestController
 public class PlasSBController {
+
+  private static final double TONS_PER_CONTAINER = 0.00005; //0,5 kg each container
+  private static final double MAX_DAILY_CAPACITY = 1000.0; //tons
 
   private final PlasAssignmentRepository assignmentRepository;
 
@@ -47,9 +51,12 @@ public class PlasSBController {
   }
 
   private double computeCapacity(LocalDate date) {
-    double base = 1000.0;
-    double dec = date.getDayOfMonth() * 10.0;
-    return Math.max(0.0, base - dec);
+    double capacity = MAX_DAILY_CAPACITY;
+    List<Assignment> assignments = assignmentRepository.findByDate(date);
+    for (Assignment assignment : assignments) {
+      capacity = capacity - (assignment.getnContainer()*TONS_PER_CONTAINER);
+    }
+    return Math.max(0.0, capacity);
   }
 
 }
