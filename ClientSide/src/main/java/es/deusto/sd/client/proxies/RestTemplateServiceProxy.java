@@ -61,7 +61,7 @@ public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
     @Override
     public List<DumpsterStatus> getDumpsterStatus(String postalCode, LocalDate date) {
         // Spring convierte automáticamente LocalDate.toString() al formato ISO (yyyy-mm-dd)
-        // que es lo que espera tu servidor.
+        // que es lo que espera el servidor.
         String url = apiBaseUrl + "/ecoembes/dumpsters/status?postalCode=" + postalCode + "&date=" + date;
         
         try {
