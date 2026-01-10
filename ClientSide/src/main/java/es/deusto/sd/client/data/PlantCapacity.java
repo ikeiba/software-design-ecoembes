@@ -1,7 +1,7 @@
 package es.deusto.sd.client.data;
 
 
-public class PlantCapacity{ //we make it serializable so that it can be send as output or input in sockets
+public class PlantCapacity{ 
   private Long plantId;
   private String plantName;
   private double availableCapacityTons;
