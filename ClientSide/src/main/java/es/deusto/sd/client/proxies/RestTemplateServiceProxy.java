@@ -34,7 +34,7 @@ public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
         try {
             return restTemplate.postForObject(url, credentials, String.class);
         } catch (HttpStatusCodeException e) {
-            throw new RuntimeException("Login fallido: " + e.getStatusText());
+            throw new RuntimeException("Login failed: " + e.getStatusText());
         }
     }
 
@@ -44,7 +44,7 @@ public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
         try {
             restTemplate.postForObject(url, token, Void.class);
         } catch (HttpStatusCodeException e) {
-            throw new RuntimeException("Logout fallido.");
+            throw new RuntimeException("Logout failed.");
         }
     }
 
@@ -54,7 +54,7 @@ public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
         try {
             return restTemplate.postForObject(url, newDumpster, Dumpster.class);
         } catch (HttpStatusCodeException e) {
-            throw new RuntimeException("Error creando contenedor: " + e.getResponseBodyAsString());
+            throw new RuntimeException("Error creating dumpster: " + e.getResponseBodyAsString());
         }
     }
 
@@ -74,7 +74,7 @@ public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
             return response != null ? Arrays.asList(response) : List.of(); // Evita NPE
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode().value() == 204) return List.of(); // Sin contenido
-            throw new RuntimeException("Error obteniendo estado: " + e.getStatusText());
+            throw new RuntimeException("Error getting status: " + e.getStatusText());
         }
     }
 
@@ -87,7 +87,7 @@ public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
             return response != null ? Arrays.asList(response) : List.of(); // Evita NPE
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode().value() == 204) return List.of();
-            throw new RuntimeException("Error obteniendo capacidades.");
+            throw new RuntimeException("Error getting capacities.");
         }
     }
 
@@ -98,7 +98,7 @@ public class RestTemplateServiceProxy implements IEcoembesServiceProxy {
             return restTemplate.postForObject(url, assignment, Assignment.class);
         } catch (HttpStatusCodeException e) {
             // Capturamos el error 400 o 500 para mostrar el mensaje del servidor si es posible
-            throw new RuntimeException("Error en asignación: " + e.getResponseBodyAsString());
+            throw new RuntimeException("Assignment error: " + e.getResponseBodyAsString());
         }
     }
 }
